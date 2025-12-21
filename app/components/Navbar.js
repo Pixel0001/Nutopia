@@ -14,6 +14,16 @@ export default function Navbar() {
     { name: "Contact", href: "#contact" },
   ];
 
+  const handleSmoothScroll = (e, href) => {
+    e.preventDefault();
+    const targetId = href.replace("#", "");
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setIsOpen(false);
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm dark:bg-zinc-900/90">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -34,6 +44,7 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => handleSmoothScroll(e, link.href)}
                 className="text-sm font-medium text-zinc-700 transition-colors hover:text-amber-600 dark:text-zinc-300 dark:hover:text-amber-500"
               >
                 {link.name}
@@ -63,7 +74,7 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => handleSmoothScroll(e, link.href)}
                 className="block px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-amber-50 hover:text-amber-600 rounded-lg dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 {link.name}
