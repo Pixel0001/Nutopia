@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { isSuperAdmin } from "@/config/admins";
 import {
   Search,
   Plus,
@@ -17,6 +18,7 @@ import {
   ChevronDown,
   Ban,
   Unlock,
+  Crown,
 } from "lucide-react";
 
 export default function AdminUsersPage() {
@@ -242,7 +244,10 @@ export default function AdminUsersPage() {
     }
   };
 
-  const getRoleIcon = (role) => {
+  const getRoleIcon = (role, email) => {
+    if (role === "admin" && isSuperAdmin(email)) {
+      return <Crown className="w-4 h-4" />;
+    }
     switch (role) {
       case "admin":
         return <ShieldCheck className="w-4 h-4" />;
@@ -253,7 +258,10 @@ export default function AdminUsersPage() {
     }
   };
 
-  const getRoleColor = (role) => {
+  const getRoleColor = (role, email) => {
+    if (role === "admin" && isSuperAdmin(email)) {
+      return "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border-amber-300";
+    }
     switch (role) {
       case "admin":
         return "bg-green-100 text-green-800 border-green-200";
@@ -264,7 +272,10 @@ export default function AdminUsersPage() {
     }
   };
 
-  const getRoleText = (role) => {
+  const getRoleText = (role, email) => {
+    if (role === "admin" && isSuperAdmin(email)) {
+      return "Super Admin";
+    }
     switch (role) {
       case "admin":
         return "Administrator";
@@ -466,18 +477,27 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <select
-                        value={user.role}
-                        onChange={(e) => updateUserRole(user.id, e.target.value)}
-                        disabled={updating === user.id || user.isBlocked}
-                        className={`text-sm font-medium rounded-lg px-3 py-1.5 border cursor-pointer ${getRoleColor(
-                          user.role
-                        )} ${updating === user.id || user.isBlocked ? "opacity-50" : ""}`}
-                      >
-                        <option value="user">Utilizator</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Administrator</option>
-                      </select>
+                      {user.role === "admin" || isSuperAdmin(user.email) ? (
+                        <div className={`inline-flex items-center gap-2 text-sm font-medium rounded-lg px-3 py-1.5 border ${getRoleColor(user.role, user.email)}`}>
+                          {getRoleIcon(user.role, user.email)}
+                          <span>{getRoleText(user.role, user.email)}</span>
+                          {isSuperAdmin(user.email) && (
+                            <span className="text-xs opacity-75">(Protejat)</span>
+                          )}
+                        </div>
+                      ) : (
+                        <select
+                          value={user.role}
+                          onChange={(e) => updateUserRole(user.id, e.target.value)}
+                          disabled={updating === user.id || user.isBlocked}
+                          className={`text-sm font-medium rounded-lg px-3 py-1.5 border cursor-pointer ${getRoleColor(
+                            user.role, user.email
+                          )} ${updating === user.id || user.isBlocked ? "opacity-50" : ""}`}
+                        >
+                          <option value="user">Utilizator</option>
+                          <option value="moderator">Moderator</option>
+                        </select>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-gray-800">
