@@ -85,7 +85,7 @@ export default function Navbar() {
             >
               <div className="relative overflow-hidden">
                 <Image
-                  src="/Nutopia4.PNG"
+                  src="/Nutopia4.png"
                   alt="Nutopia Logo"
                   width={300}
                   height={300}
