@@ -503,7 +503,7 @@ export default function CartPage() {
                         required
                         value={formData.fullName}
                         onChange={handleFormChange}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 dark:text-white transition-all text-lg"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 text-gray-900 dark:text-white transition-all text-lg placeholder:text-gray-400"
                       />
                     </div>
                     
@@ -516,7 +516,7 @@ export default function CartPage() {
                         required
                         value={formData.phone}
                         onChange={handleFormChange}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 dark:text-white transition-all text-lg"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 text-gray-900 dark:text-white transition-all text-lg placeholder:text-gray-400"
                       />
                     </div>
                     
@@ -530,7 +530,7 @@ export default function CartPage() {
                           required
                           value={formData.city}
                           onChange={handleFormChange}
-                          className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 dark:text-white transition-all text-lg"
+                          className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 text-gray-900 dark:text-white transition-all text-lg placeholder:text-gray-400"
                         />
                       </div>
                       <input
@@ -540,7 +540,7 @@ export default function CartPage() {
                         required
                         value={formData.address}
                         onChange={handleFormChange}
-                        className="w-full px-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 dark:text-white transition-all text-lg"
+                        className="w-full px-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 text-gray-900 dark:text-white transition-all text-lg placeholder:text-gray-400"
                       />
                     </div>
                     
@@ -552,7 +552,7 @@ export default function CartPage() {
                         value={formData.notes}
                         onChange={handleFormChange}
                         rows={3}
-                        className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 dark:text-white transition-all resize-none text-lg"
+                        className="w-full pl-12 pr-4 py-4 border-2 border-zinc-200 dark:border-zinc-600 rounded-2xl focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 dark:bg-zinc-700 text-gray-900 dark:text-white transition-all resize-none text-lg placeholder:text-gray-400"
                       />
                     </div>
                   </div>

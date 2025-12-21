@@ -292,7 +292,7 @@ export default function AdminOrdersPage() {
               placeholder="Caută..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
             />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:gap-4">
@@ -408,9 +408,9 @@ export default function AdminOrdersPage() {
               </h3>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-900"
+                className="p-2 hover:bg-gray-100 rounded-xl transition-all text-gray-500 hover:text-gray-900 hover:rotate-90"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={2.5} />
               </button>
             </div>
 

@@ -371,7 +371,7 @@ export default function AdminUsersPage() {
               placeholder="Caută după email sau nume..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
             />
           </div>
           <div className="relative">
@@ -546,9 +546,9 @@ export default function AdminUsersPage() {
               </h3>
               <button
                 onClick={closeModal}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-900"
+                className="p-2 hover:bg-gray-100 rounded-xl transition-all text-gray-500 hover:text-gray-900 hover:rotate-90"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={2.5} />
               </button>
             </div>
 
@@ -615,7 +615,7 @@ export default function AdminUsersPage() {
                       setFormData((prev) => ({ ...prev, email: e.target.value }))
                     }
                     required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     placeholder="email@exemplu.com"
                   />
                 </div>
@@ -634,7 +634,7 @@ export default function AdminUsersPage() {
                       setFormData((prev) => ({ ...prev, name: e.target.value }))
                     }
                     required
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     placeholder="Nume complet"
                   />
                 </div>
@@ -654,7 +654,7 @@ export default function AdminUsersPage() {
                     }
                     required
                     minLength={6}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
                     placeholder="Minim 6 caractere"
                   />
                 </div>

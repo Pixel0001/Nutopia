@@ -154,7 +154,7 @@ function LoginForm() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-xl shadow-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-700 dark:text-white"
+                className="mt-1 block w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-xl shadow-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-700 text-gray-900 dark:text-white"
                 placeholder="email@exemplu.com"
               />
             </div>
@@ -174,7 +174,7 @@ function LoginForm() {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-1 block w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-xl shadow-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-700 dark:text-white"
+                className="mt-1 block w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-xl shadow-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent dark:bg-zinc-700 text-gray-900 dark:text-white"
                 placeholder="Parola ta"
               />
             </div>

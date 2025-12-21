@@ -17,6 +17,7 @@ import {
   Home,
   MessageCircle,
   Mail,
+  Quote,
 } from "lucide-react";
 
 export default function AdminLayout({ children }) {
@@ -103,6 +104,13 @@ export default function AdminLayout({ children }) {
       roles: ["admin", "moderator"],
     },
     {
+      name: "Testimoniale",
+      href: "/admin/testimonials",
+      icon: Quote,
+      current: pathname.startsWith("/admin/testimonials"),
+      roles: ["admin"],
+    },
+    {
       name: "Email Marketing",
       href: "/admin/emails",
       icon: Mail,
@@ -157,9 +165,9 @@ export default function AdminLayout({ children }) {
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-all text-gray-500 hover:text-gray-900 hover:rotate-90"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" strokeWidth={2.5} />
             </button>
           </div>
 

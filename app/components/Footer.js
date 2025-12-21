@@ -254,10 +254,10 @@ export default function Footer() {
             </p>
             
             <div className="flex items-center gap-6">
-              <a href="#" className="text-sm text-stone-500 hover:text-amber-500 transition-colors duration-300">
+              <a href="/terms" className="text-sm text-stone-500 hover:text-amber-500 transition-colors duration-300">
                 Termeni și Condiții
               </a>
-              <a href="#" className="text-sm text-stone-500 hover:text-amber-500 transition-colors duration-300">
+              <a href="/privacy" className="text-sm text-stone-500 hover:text-amber-500 transition-colors duration-300">
                 Politica de Confidențialitate
               </a>
             </div>

@@ -2,60 +2,61 @@
 import { useEffect, useState, useRef } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 
-const reviews = [
+// Default reviews (fallback if no testimonials in DB)
+const defaultReviews = [
   {
+    id: "1",
     name: "Maria Popescu",
     location: "Chișinău",
-    avatar: "M",
+    image: null,
     rating: 5,
     text: "Cea mai bună miere pe care am gustat-o! Comand de fiecare dată de la Nutopia și nu am fost niciodată dezamăgită. Calitatea este întotdeauna constantă.",
     product: "Miere de salcâm",
-    verified: true
   },
   {
+    id: "2",
     name: "Andrei Ionescu",
     location: "Bălți",
-    avatar: "A",
+    image: null,
     rating: 5,
     text: "Nucile sunt incredibil de proaspete și gustoase. Livrarea a fost rapidă și ambalajul impecabil. Voi reveni cu siguranță!",
     product: "Nuci de California",
-    verified: true
   },
   {
+    id: "3",
     name: "Elena Dumitrescu",
     location: "Orhei",
-    avatar: "E",
+    image: null,
     rating: 5,
     text: "Am descoperit Nutopia din întâmplare și acum sunt clientă fidel. Fructele uscate sunt delicioase și prețurile sunt foarte bune!",
     product: "Mix fructe uscate",
-    verified: true
   },
   {
+    id: "4",
     name: "Mihai Constantinescu",
     location: "Chișinău",
-    avatar: "M",
+    image: null,
     rating: 5,
     text: "Magazinul fizic este foarte frumos amenajat, iar personalul este extraordinar de amabil. Produsele sunt de o calitate excepțională.",
     product: "Migdale crude",
-    verified: true
   },
   {
+    id: "5",
     name: "Ana Rotaru",
     location: "Cahul",
-    avatar: "A",
+    image: null,
     rating: 5,
     text: "Comand online de mai bine de un an și sunt mereu mulțumită. Mierea cu nuci este preferata mea - perfectă pentru micul dejun!",
     product: "Miere cu nuci",
-    verified: true
   },
   {
+    id: "6",
     name: "Ion Ceban",
     location: "Soroca",
-    avatar: "I",
+    image: null,
     rating: 5,
     text: "Raport calitate-preț excelent. Caju-ul este crocant și proaspăt, exact cum îmi place. Livrare rapidă în toată Moldova.",
     product: "Caju premium",
-    verified: true
   }
 ];
 
@@ -69,8 +70,37 @@ export default function Reviews() {
   const [isVisible, setIsVisible] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [reviews, setReviews] = useState(defaultReviews);
+  const [loading, setLoading] = useState(true);
+  const [averageRating, setAverageRating] = useState(4.9);
+  const [totalReviews, setTotalReviews] = useState(1000);
   const sectionRef = useRef(null);
-  const carouselRef = useRef(null);
+
+  // Fetch testimonials from API
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch("/api/testimonials");
+        const data = await res.json();
+        if (res.ok && data.testimonials && data.testimonials.length > 0) {
+          setReviews(data.testimonials);
+          
+          // Calculate average rating
+          const totalRating = data.testimonials.reduce((sum, review) => sum + review.rating, 0);
+          const avgRating = totalRating / data.testimonials.length;
+          setAverageRating(avgRating.toFixed(1));
+          setTotalReviews(data.testimonials.length);
+        }
+      } catch (error) {
+        console.error("Error fetching testimonials:", error);
+        // Keep default reviews on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -91,14 +121,14 @@ export default function Reviews() {
 
   // Auto-play carousel
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || reviews.length === 0) return;
 
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % reviews.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying]);
+  }, [isAutoPlaying, reviews.length]);
 
   const goToPrev = () => {
     setIsAutoPlaying(false);
@@ -109,6 +139,9 @@ export default function Reviews() {
     setIsAutoPlaying(false);
     setActiveIndex((prev) => (prev + 1) % reviews.length);
   };
+
+  // Get avatar letter from name
+  const getAvatar = (name) => name.charAt(0).toUpperCase();
 
   return (
     <section 
@@ -145,19 +178,37 @@ export default function Reviews() {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          {stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                {index === 0 && <Star className="w-6 h-6 fill-amber-400 text-amber-400" />}
-                <span className="text-3xl sm:text-4xl font-bold text-stone-800 dark:text-stone-100">
-                  {stat.value}
-                </span>
-              </div>
-              <span className="text-sm text-stone-500 dark:text-stone-400">
-                {stat.label}
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
+              <span className="text-3xl sm:text-4xl font-bold text-stone-800 dark:text-stone-100">
+                {averageRating}
               </span>
             </div>
-          ))}
+            <span className="text-sm text-stone-500 dark:text-stone-400">
+              Rating mediu
+            </span>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <span className="text-3xl sm:text-4xl font-bold text-stone-800 dark:text-stone-100">
+                {totalReviews}+
+              </span>
+            </div>
+            <span className="text-sm text-stone-500 dark:text-stone-400">
+              Clienți fericiți
+            </span>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-1 mb-1">
+              <span className="text-3xl sm:text-4xl font-bold text-stone-800 dark:text-stone-100">
+                98%
+              </span>
+            </div>
+            <span className="text-sm text-stone-500 dark:text-stone-400">
+              Ar recomanda
+            </span>
+          </div>
         </div>
 
         {/* Featured Review - Large */}
@@ -186,22 +237,29 @@ export default function Reviews() {
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                      {reviews[activeIndex].avatar}
-                    </div>
+                    {reviews[activeIndex]?.image ? (
+                      <img 
+                        src={reviews[activeIndex].image} 
+                        alt={reviews[activeIndex].name}
+                        className="w-14 h-14 rounded-full object-cover shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                        {getAvatar(reviews[activeIndex]?.name || "U")}
+                      </div>
+                    )}
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-stone-800 dark:text-stone-100">
-                          {reviews[activeIndex].name}
+                          {reviews[activeIndex]?.name}
                         </span>
-                        {reviews[activeIndex].verified && (
-                          <span className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
-                            ✓ Verificat
-                          </span>
-                        )}
+                        <span className="px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium">
+                          ✓ Verificat
+                        </span>
                       </div>
                       <span className="text-sm text-stone-500 dark:text-stone-400">
-                        {reviews[activeIndex].location} • {reviews[activeIndex].product}
+                        {reviews[activeIndex]?.location}
+                        {reviews[activeIndex]?.product && ` • ${reviews[activeIndex].product}`}
                       </span>
                     </div>
                   </div>
@@ -253,7 +311,7 @@ export default function Reviews() {
         >
           {reviews.slice(0, 3).map((review, index) => (
             <div 
-              key={index}
+              key={review.id || index}
               className={`p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
                 activeIndex === index
                   ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800"
@@ -265,9 +323,17 @@ export default function Reviews() {
               }}
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
-                  {review.avatar}
-                </div>
+                {review.image ? (
+                  <img 
+                    src={review.image} 
+                    alt={review.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
+                    {getAvatar(review.name)}
+                  </div>
+                )}
                 <div>
                   <p className="font-medium text-stone-800 dark:text-stone-100 text-sm">
                     {review.name}
@@ -296,7 +362,7 @@ export default function Reviews() {
             Ai încercat produsele noastre?
           </p>
           <a
-            href="#contact"
+            href="/reviews"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-amber-500 text-amber-600 dark:text-amber-500 font-semibold hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all duration-300"
           >
             Lasă o recenzie

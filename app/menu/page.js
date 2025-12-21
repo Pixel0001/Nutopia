@@ -156,7 +156,7 @@ export default function MenuPage() {
                 placeholder="Caută produse..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-gray-900 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-gray-900 dark:text-stone-100 placeholder:text-gray-400 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               />
             </div>
 
