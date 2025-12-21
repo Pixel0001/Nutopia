@@ -160,6 +160,14 @@ export default function AdminUsersPage() {
   };
 
   const revokeRole = async (userId) => {
+    const userToRevoke = users.find(u => u.id === userId);
+    
+    // Prevent revoking admin roles
+    if (userToRevoke && (userToRevoke.role === "admin" || isSuperAdmin(userToRevoke.email))) {
+      alert("Nu poți revoca rolul administratorilor!");
+      return;
+    }
+    
     if (!confirm("Sigur dorești să revoci rolul acestui utilizator?")) return;
 
     setUpdating(userId);
@@ -197,6 +205,14 @@ export default function AdminUsersPage() {
   };
 
   const toggleBlockUser = async (userId, currentlyBlocked) => {
+    const userToBlock = users.find(u => u.id === userId);
+    
+    // Prevent blocking admins
+    if (userToBlock && (userToBlock.role === "admin" || isSuperAdmin(userToBlock.email))) {
+      alert("Nu poți bloca administratori!");
+      return;
+    }
+    
     const action = currentlyBlocked ? "debloca" : "bloca";
     let reason = null;
     
@@ -511,16 +527,24 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
-                        {/* Block/Unblock button */}
+                        {/* Block/Unblock button - Disabled for admins */}
                         <button
                           onClick={() => toggleBlockUser(user.id, user.isBlocked)}
-                          disabled={updating === user.id}
+                          disabled={updating === user.id || user.role === "admin" || isSuperAdmin(user.email)}
                           className={`p-2 rounded-lg transition-colors ${
-                            user.isBlocked 
-                              ? "text-green-600 hover:bg-green-50" 
-                              : "text-orange-600 hover:bg-orange-50"
+                            user.role === "admin" || isSuperAdmin(user.email)
+                              ? "text-gray-300 cursor-not-allowed"
+                              : user.isBlocked 
+                                ? "text-green-600 hover:bg-green-50" 
+                                : "text-orange-600 hover:bg-orange-50"
                           }`}
-                          title={user.isBlocked ? "Deblochează utilizatorul" : "Blochează utilizatorul"}
+                          title={
+                            user.role === "admin" || isSuperAdmin(user.email)
+                              ? "Nu poți bloca administratori"
+                              : user.isBlocked 
+                                ? "Deblochează utilizatorul" 
+                                : "Blochează utilizatorul"
+                          }
                         >
                           {updating === user.id ? (
                             <Loader2 className="w-5 h-5 animate-spin" />
@@ -531,13 +555,21 @@ export default function AdminUsersPage() {
                           )}
                         </button>
                         
-                        {/* Revoke role button */}
+                        {/* Revoke role button - Disabled for admins */}
                         {user.role !== "user" && (
                           <button
                             onClick={() => revokeRole(user.id)}
-                            disabled={updating === user.id}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Revocă rolul"
+                            disabled={updating === user.id || user.role === "admin" || isSuperAdmin(user.email)}
+                            className={`p-2 rounded-lg transition-colors ${
+                              user.role === "admin" || isSuperAdmin(user.email)
+                                ? "text-gray-300 cursor-not-allowed"
+                                : "text-red-600 hover:bg-red-50"
+                            }`}
+                            title={
+                              user.role === "admin" || isSuperAdmin(user.email)
+                                ? "Nu poți revoca rolul administratorilor"
+                                : "Revocă rolul"
+                            }
                           >
                             {updating === user.id ? (
                               <Loader2 className="w-5 h-5 animate-spin" />
