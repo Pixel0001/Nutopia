@@ -182,7 +182,7 @@ export default function Hero() {
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 blur-3xl opacity-20 scale-150" />
               <Image
-                src="/Nutopia4.PNG"
+                src="/Nutopia4.png"
                 alt="Nutopia Logo"
                 width={280}
                 height={112}
@@ -310,7 +310,7 @@ export default function Hero() {
                         style={{
                           width: statsVisible ? "100%" : "0%",
                           transition: `width 1.5s cubic-bezier(0.4, 0, 0.2, 1)`,
-                          transitionDelay: `${800 + index * 300}ms`,
+                          transitionDelay: `800ms`,
                         }}
                       />
                     </div>
