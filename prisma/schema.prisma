@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  email         String    @unique
+  password      String?   // Null for Google OAuth users
+  name          String?
+  image         String?
+  emailVerified DateTime?
+  provider      String    @default("credentials") // "credentials" or "google"
+  providerId    String?   // Google ID for OAuth users
+  role          String    @default("user") // user, moderator, admin
+  isBlocked     Boolean   @default(false)
+  blockedReason String?   // Motivul blocării
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  cart          CartItem[]
+  orders        Order[]
+  conversations Conversation[]
+  messages      Message[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  slug        String    @unique
+  image       String?
+  description String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String    @unique
+  description String?
+  price       Float
+  unit        String    @default("MDL/kg") // MDL/kg, MDL/buc, etc.
+  image       String
+  stock       Float     @default(0) // Stock in kg or pieces
+  isActive    Boolean   @default(true)
+  
+  categoryId  String    @db.ObjectId
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("products")
+}
+
+model CartItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  productId    String?   @db.ObjectId
+  productName  String
+  productImage String
+  price        Float
+  unit         String
+  quantity     Float     @default(1) // Can be kg or pieces
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("cart_items")
+}
+
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  items           OrderItem[]
+  status          String      @default("pending") // pending, confirmed, processing, shipped, delivered, cancelled
+  subtotal        Float?
+  shippingCost    Float?      @default(0)
+  total           Float
+  paymentMethod   String      @default("cash") // cash, card, paypal
+  
+  // Shipping info
+  shippingAddress String?
+  fullName        String
+  phone           String
+  address         String
+  city            String
+  notes           String?
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+type OrderItem {
+  productId    String?
+  name         String?
+  productName  String
+  productImage String
+  price        Float
+  unit         String
+  quantity     Float
+}
+
+model Conversation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  subject     String
+  status      String    @default("open") // open, closed
+  unreadAdmin Boolean   @default(true)  // Unread by admin
+  unreadUser  Boolean   @default(false) // Unread by user
+  
+  messages    Message[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("conversations")
+}
+
+model Message {
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId  String       @db.ObjectId
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  senderId        String       @db.ObjectId
+  sender          User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  
+  content         String
+  isFromAdmin     Boolean      @default(false)
+  editedAt        DateTime?    // When message was edited
+  
+  createdAt       DateTime     @default(now())
+
+  @@map("messages")
+}
+
+model EmailTemplate {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  subject     String
+  content     String    // HTML content
+  category    String    @default("general") // general, promo, news, etc.
+  isActive    Boolean   @default(true)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("email_templates")
+}
+
+model NewsletterSubscriber {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String    @unique
+  name        String?
+  isActive    Boolean   @default(true)
+  
+  createdAt   DateTime  @default(now())
+
+  @@map("newsletter_subscribers")
+}
+
+model EmailLog {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  subject     String
+  recipients  String[]  // Array of emails
+  recipientType String  // users, admins, moderators, subscribers, all
+  templateId  String?   @db.ObjectId
+  content     String
+  sentBy      String    // Email of sender (super admin)
+  status      String    @default("sent") // sent, failed
+  sentCount   Int       @default(0)
+  
+  createdAt   DateTime  @default(now())
+
+  @@map("email_logs")
+}

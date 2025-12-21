@@ -1,9 +1,10 @@
 "use client";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { ShoppingCart, ChevronRight } from "lucide-react";
+import { ShoppingCart, ChevronRight, Check, Loader2, LayoutGrid } from "lucide-react";
 
-const products = [
+// Fallback static products (used when database is empty)
+const staticProducts = [
   {
     category: "Nuci",
     description: "Nuci premium selectate cu grijă",
@@ -137,9 +138,33 @@ const products = [
 ];
 
 export default function Menu() {
+  const [products, setProducts] = useState(staticProducts);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [activeCategory, setActiveCategory] = useState("Toate");
   const [isVisible, setIsVisible] = useState(false);
+  const [addingToCart, setAddingToCart] = useState({});
+  const [addedToCart, setAddedToCart] = useState({});
   const sectionRef = useRef(null);
+
+  // Fetch products from database
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.products && data.products.length > 0) {
+            setProducts(data.products);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -158,7 +183,65 @@ export default function Menu() {
     return () => observer.disconnect();
   }, []);
 
-  const categories = ["Toate", ...products.map(p => p.category)];
+  // Funcție pentru a determina cantitatea inițială bazată pe unitate
+  const getInitialQuantity = (unit) => {
+    const unitLower = (unit || "").toLowerCase();
+    if (unitLower.includes("buc")) return 1;
+    return 1; // default pentru kg și g
+  };
+
+  const handleAddToCart = async (item) => {
+    const itemKey = item.name;
+    setAddingToCart((prev) => ({ ...prev, [itemKey]: true }));
+
+    const initialQty = getInitialQuantity(item.unit);
+
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: item.id || null,
+          productName: item.name,
+          productImage: item.image,
+          price: item.price,
+          unit: item.unit,
+          quantity: initialQty,
+        }),
+      });
+
+      if (res.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "A apărut o eroare");
+        return;
+      }
+
+      if (res.ok) {
+        setAddedToCart((prev) => ({ ...prev, [itemKey]: true }));
+        // Trigger navbar cart count update
+        window.dispatchEvent(new Event("cartUpdated"));
+        
+        setTimeout(() => {
+          setAddedToCart((prev) => ({ ...prev, [itemKey]: false }));
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    } finally {
+      setAddingToCart((prev) => ({ ...prev, [itemKey]: false }));
+    }
+  };
+
+  // Create category objects with images for filters
+  const categoryFilters = [
+    { name: "Toate", image: null },
+    ...products.map(p => ({ name: p.category, image: p.categoryImage }))
+  ];
   
   const filteredProducts = activeCategory === "Toate" 
     ? products 
@@ -190,21 +273,33 @@ export default function Menu() {
 
         {/* Category Filter */}
         <div 
-          className={`flex flex-wrap justify-center gap-3 mb-12 transition-all duration-1000 delay-200 ${
+          className={`flex flex-wrap justify-center gap-2 sm:gap-3 mb-12 transition-all duration-1000 delay-200 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          {categories.map((category) => (
+          {categoryFilters.map((cat) => (
             <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeCategory === category
+              key={cat.name}
+              onClick={() => setActiveCategory(cat.name)}
+              className={`flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                activeCategory === cat.name
                   ? "bg-amber-600 text-white shadow-lg shadow-amber-600/25"
-                  : "bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700"
+                  : "bg-white dark:bg-stone-800 text-gray-900 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700"
               }`}
             >
-              {category}
+              {cat.image ? (
+                <div className="w-6 h-6 sm:w-7 sm:h-7 relative rounded-full overflow-hidden flex-shrink-0">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <LayoutGrid className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+              )}
+              <span>{cat.name}</span>
             </button>
           ))}
         </div>
@@ -220,8 +315,19 @@ export default function Menu() {
               style={{ transitionDelay: `${300 + categoryIndex * 150}ms` }}
             >
               {/* Category Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div>
+              <div className="flex items-center gap-4 mb-8">
+                {/* Category Image */}
+                {category.categoryImage && (
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 relative rounded-full overflow-hidden shadow-lg ring-2 ring-amber-200 dark:ring-amber-800">
+                    <Image
+                      src={category.categoryImage}
+                      alt={category.category}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex-1">
                   <h3 className="text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100">
                     {category.category}
                   </h3>
@@ -240,10 +346,12 @@ export default function Menu() {
 
               {/* Products */}
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {category.items.map((item, itemIndex) => (
+                {category.items.map((item, itemIndex) => {
+                  const isOutOfStock = item.stock !== undefined && item.stock <= 0;
+                  return (
                   <div
                     key={item.name}
-                    className="group bg-white dark:bg-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 dark:border-stone-700"
+                    className={`group bg-white dark:bg-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 dark:border-stone-700 ${isOutOfStock ? 'opacity-75' : ''}`}
                   >
                     {/* Image Container */}
                     <div className="relative h-48 overflow-hidden bg-stone-100 dark:bg-stone-700">
@@ -251,18 +359,38 @@ export default function Menu() {
                         src={item.image}
                         alt={item.name}
                         fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        className={`object-cover group-hover:scale-110 transition-transform duration-700 ${isOutOfStock ? 'grayscale' : ''}`}
                       />
+                      {/* Out of Stock Overlay */}
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-[2px]">
+                          <div className="bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl transform -rotate-12">
+                            <span className="text-lg font-bold uppercase tracking-wider">Out of Stock</span>
+                          </div>
+                        </div>
+                      )}
                       {/* Badge */}
-                      {item.badge && (
+                      {item.badge && !isOutOfStock && (
                         <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-semibold shadow-lg">
                           {item.badge}
                         </span>
                       )}
                       {/* Quick Add Button */}
-                      <button className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white dark:bg-stone-800 shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-amber-500 hover:text-white">
-                        <ShoppingCart className="w-5 h-5" />
-                      </button>
+                      {!isOutOfStock && (
+                        <button 
+                          onClick={() => handleAddToCart(item)}
+                          disabled={addingToCart[item.name]}
+                          className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-white dark:bg-stone-800 shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300 hover:bg-amber-500 hover:text-white disabled:opacity-50"
+                        >
+                          {addingToCart[item.name] ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : addedToCart[item.name] ? (
+                            <Check className="w-5 h-5 text-green-600" />
+                          ) : (
+                            <ShoppingCart className="w-5 h-5" />
+                          )}
+                        </button>
+                      )}
                     </div>
 
                     {/* Content */}
@@ -278,20 +406,40 @@ export default function Menu() {
                       {/* Price & Action */}
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-2xl font-bold text-amber-600 dark:text-amber-500">
+                          <span className={`text-2xl font-bold ${isOutOfStock ? 'text-stone-400' : 'text-amber-600 dark:text-amber-500'}`}>
                             {item.price}
                           </span>
                           <span className="text-sm text-stone-400 ml-1">
                             {item.unit}
                           </span>
                         </div>
-                        <button className="px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-700 text-stone-700 dark:text-stone-300 text-sm font-medium hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 transition-all duration-300">
-                          Adaugă
-                        </button>
+                        {isOutOfStock ? (
+                          <span className="px-4 py-2 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-400 text-sm font-medium">
+                            Indisponibil
+                          </span>
+                        ) : (
+                          <button 
+                            onClick={() => handleAddToCart(item)}
+                            disabled={addingToCart[item.name]}
+                            className="px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-700 text-gray-900 dark:text-stone-300 text-sm font-medium hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {addingToCart[item.name] ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : addedToCart[item.name] ? (
+                              <>
+                                <Check className="w-4 h-4" />
+                                Adăugat
+                              </>
+                            ) : (
+                              "Adaugă"
+                            )}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}

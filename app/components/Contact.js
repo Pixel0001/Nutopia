@@ -1,20 +1,31 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Instagram, Facebook, MessageCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, CheckCircle, Instagram, Facebook, MessageCircle, LogIn, ChevronLeft, Plus, X, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function Contact() {
   const [isVisible, setIsVisible] = useState(false);
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [focusedField, setFocusedField] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
   const sectionRef = useRef(null);
+  
+  // Chat state
+  const [conversations, setConversations] = useState([]);
+  const [loadingConversations, setLoadingConversations] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  
+  // New conversation
+  const [showNewConversation, setShowNewConversation] = useState(false);
+  const [newSubject, setNewSubject] = useState("");
+  const [newFirstMessage, setNewFirstMessage] = useState("");
+  const [creatingConversation, setCreatingConversation] = useState(false);
+  
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -33,23 +44,185 @@ export default function Contact() {
     return () => observer.disconnect();
   }, []);
 
-  const handleChange = (e) => {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
+  // Fetch current user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.user);
+        }
+      } catch (err) {
+        console.error("Fetch user error:", err);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Fetch conversations when user is loaded
+  useEffect(() => {
+    if (user) {
+      fetchConversations();
+    }
+  }, [user]);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [messages]);
+
+  const fetchConversations = async () => {
+    setLoadingConversations(true);
+    try {
+      const res = await fetch("/api/messages");
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data.conversations || []);
+      }
+    } catch (err) {
+      console.error("Fetch conversations error:", err);
+    } finally {
+      setLoadingConversations(false);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const openConversation = async (conversation) => {
+    setSelectedConversation(conversation);
+    setLoadingMessages(true);
+    setShowNewConversation(false);
+    
+    try {
+      const res = await fetch(`/api/messages/${conversation.id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(data.conversation?.messages || []);
+        
+        // Mark as read
+        if (conversation.unreadUser) {
+          await fetch(`/api/messages/${conversation.id}`, { method: "PATCH" });
+          setConversations(prev =>
+            prev.map(c => c.id === conversation.id ? { ...c, unreadUser: false } : c)
+          );
+        }
+      }
+    } catch (err) {
+      console.error("Fetch messages error:", err);
+    } finally {
+      setLoadingMessages(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  const sendMessage = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!newMessage.trim() || sending) return;
+
+    const messageText = newMessage.trim();
+    setNewMessage("");
+    setSending(true);
+
+    // Optimistic update
+    const tempMessage = {
+      id: "temp-" + Date.now(),
+      content: messageText,
+      isFromAdmin: false,
+      createdAt: new Date().toISOString(),
+      sending: true
+    };
+    setMessages(prev => [...prev, tempMessage]);
+
+    try {
+      const res = await fetch(`/api/messages/${selectedConversation.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: messageText })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMessages(prev => prev.map(m => 
+          m.id === tempMessage.id ? data.message : m
+        ));
+        
+        // Update conversation in list
+        setConversations(prev =>
+          prev.map(c => c.id === selectedConversation.id 
+            ? { ...c, updatedAt: new Date().toISOString() }
+            : c
+          ).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        );
+      } else {
+        // Remove failed message
+        setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
+      }
+    } catch (err) {
+      console.error("Send message error:", err);
+      setMessages(prev => prev.filter(m => m.id !== tempMessage.id));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const createConversation = async (e) => {
+    e.preventDefault();
+    if (!newSubject.trim() || !newFirstMessage.trim() || creatingConversation) return;
+
+    setCreatingConversation(true);
+
+    try {
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subject: newSubject.trim(),
+          message: newFirstMessage.trim()
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(prev => [data.conversation, ...prev]);
+        setNewSubject("");
+        setNewFirstMessage("");
+        setShowNewConversation(false);
+        openConversation(data.conversation);
+      }
+    } catch (err) {
+      console.error("Create conversation error:", err);
+    } finally {
+      setCreatingConversation(false);
+    }
+  };
+
+  const closeConversation = async () => {
+    if (!selectedConversation || selectedConversation.status === "closed") return;
     
-    // Simulare trimitere formular
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (!confirm("Sigur vrei să închizi această conversație? Nu vei mai putea trimite mesaje.")) {
+      return;
+    }
     
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormState({ name: "", email: "", phone: "", subject: "", message: "" });
-    
-    // Reset success message after 5 seconds
-    setTimeout(() => setIsSubmitted(false), 5000);
+    try {
+      const res = await fetch(`/api/messages/${selectedConversation.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "closed" })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedConversation(data.conversation);
+        setConversations(prev =>
+          prev.map(c => c.id === selectedConversation.id ? data.conversation : c)
+        );
+      }
+    } catch (err) {
+      console.error("Close conversation error:", err);
+    }
   };
 
   const contactInfo = [
@@ -80,6 +253,29 @@ export default function Contact() {
     { icon: Facebook, label: "Facebook", href: "#", color: "hover:bg-blue-600" },
     { icon: MessageCircle, label: "WhatsApp", href: "#", color: "hover:bg-green-500" },
   ];
+
+  const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString("ro-RO", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = now - d;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return "Azi";
+    if (days === 1) return "Ieri";
+    if (days < 7) return d.toLocaleDateString("ro-RO", { weekday: "long" });
+    return d.toLocaleDateString("ro-RO", { day: "numeric", month: "short" });
+  };
+
+  const getUserInitial = () => {
+    return user?.name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "U";
+  };
 
   return (
     <section 
@@ -116,172 +312,322 @@ export default function Contact() {
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
             }`}
           >
-            <div className="bg-white dark:bg-stone-800 rounded-3xl p-8 sm:p-10 shadow-xl border border-stone-100 dark:border-stone-700">
-              <h3 className="text-2xl font-bold text-stone-800 dark:text-stone-100 mb-2">
-                Trimite-ne un mesaj
-              </h3>
-              <p className="text-stone-500 dark:text-stone-400 mb-8">
-                Completează formularul și te vom contacta în cel mai scurt timp
-              </p>
-
-              {isSubmitted ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-6">
-                    <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+            <div className="bg-white dark:bg-stone-800 rounded-3xl shadow-xl border border-stone-100 dark:border-stone-700 overflow-hidden">
+              {loadingUser ? (
+                <div className="flex items-center justify-center py-24">
+                  <div className="w-8 h-8 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : !user ? (
+                <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
+                  <div className="w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-6">
+                    <LogIn className="w-10 h-10 text-amber-600 dark:text-amber-400" />
                   </div>
                   <h4 className="text-xl font-bold text-stone-800 dark:text-stone-100 mb-2">
-                    Mesaj trimis cu succes!
+                    Autentificare necesară
                   </h4>
-                  <p className="text-stone-500 dark:text-stone-400">
-                    Îți mulțumim! Te vom contacta în curând.
+                  <p className="text-stone-500 dark:text-stone-400 mb-6">
+                    Pentru a ne trimite un mesaj, te rugăm să te autentifici sau să îți creezi un cont.
                   </p>
+                  <div className="flex gap-4">
+                    <Link
+                      href="/login"
+                      className="px-6 py-3 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 transition-colors"
+                    >
+                      Autentificare
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="px-6 py-3 border-2 border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-300 font-semibold rounded-xl hover:border-amber-500 dark:hover:border-amber-500 transition-colors"
+                    >
+                      Înregistrare
+                    </Link>
+                  </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="relative">
-                      <label 
-                        htmlFor="name"
-                        className={`absolute left-4 transition-all duration-300 pointer-events-none ${
-                          focusedField === 'name' || formState.name 
-                            ? "-top-2.5 text-xs bg-white dark:bg-stone-800 px-2 text-amber-600 dark:text-amber-400" 
-                            : "top-3.5 text-stone-400"
-                        }`}
+                <div className="flex h-[500px]">
+                  {/* Conversations List */}
+                  <div className={`w-full sm:w-80 border-r border-stone-100 dark:border-stone-700 flex flex-col ${selectedConversation ? 'hidden sm:flex' : 'flex'}`}>
+                    {/* Header */}
+                    <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+                          {user.image ? (
+                            <img 
+                              src={user.image} 
+                              alt={user.name || "User"} 
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            getUserInitial()
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-stone-800 dark:text-stone-100 text-sm">
+                            {user.name || "Utilizator"}
+                          </p>
+                          <p className="text-xs text-stone-500 dark:text-stone-400">Mesaje</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => { setShowNewConversation(true); setSelectedConversation(null); }}
+                        className="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors"
+                        title="Conversație nouă"
                       >
-                        Nume complet *
-                      </label>
-                      <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value={formState.name}
-                        onChange={handleChange}
-                        onFocus={() => setFocusedField('name')}
-                        onBlur={() => setFocusedField(null)}
-                        required
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-stone-200 dark:border-stone-600 bg-transparent text-stone-800 dark:text-stone-100 focus:border-amber-500 dark:focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300"
-                      />
+                        <Plus className="w-5 h-5 text-stone-600 dark:text-stone-400" />
+                      </button>
                     </div>
 
-                    <div className="relative">
-                      <label 
-                        htmlFor="email"
-                        className={`absolute left-4 transition-all duration-300 pointer-events-none ${
-                          focusedField === 'email' || formState.email 
-                            ? "-top-2.5 text-xs bg-white dark:bg-stone-800 px-2 text-amber-600 dark:text-amber-400" 
-                            : "top-3.5 text-stone-400"
-                        }`}
-                      >
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formState.email}
-                        onChange={handleChange}
-                        onFocus={() => setFocusedField('email')}
-                        onBlur={() => setFocusedField(null)}
-                        required
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-stone-200 dark:border-stone-600 bg-transparent text-stone-800 dark:text-stone-100 focus:border-amber-500 dark:focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="relative">
-                      <label 
-                        htmlFor="phone"
-                        className={`absolute left-4 transition-all duration-300 pointer-events-none ${
-                          focusedField === 'phone' || formState.phone 
-                            ? "-top-2.5 text-xs bg-white dark:bg-stone-800 px-2 text-amber-600 dark:text-amber-400" 
-                            : "top-3.5 text-stone-400"
-                        }`}
-                      >
-                        Telefon
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formState.phone}
-                        onChange={handleChange}
-                        onFocus={() => setFocusedField('phone')}
-                        onBlur={() => setFocusedField(null)}
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-stone-200 dark:border-stone-600 bg-transparent text-stone-800 dark:text-stone-100 focus:border-amber-500 dark:focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <label 
-                        htmlFor="subject"
-                        className={`absolute left-4 transition-all duration-300 pointer-events-none ${
-                          focusedField === 'subject' || formState.subject 
-                            ? "-top-2.5 text-xs bg-white dark:bg-stone-800 px-2 text-amber-600 dark:text-amber-400" 
-                            : "top-3.5 text-stone-400"
-                        }`}
-                      >
-                        Subiect *
-                      </label>
-                      <input
-                        type="text"
-                        id="subject"
-                        name="subject"
-                        value={formState.subject}
-                        onChange={handleChange}
-                        onFocus={() => setFocusedField('subject')}
-                        onBlur={() => setFocusedField(null)}
-                        required
-                        className="w-full px-4 py-3.5 rounded-xl border-2 border-stone-200 dark:border-stone-600 bg-transparent text-stone-800 dark:text-stone-100 focus:border-amber-500 dark:focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300"
-                      />
+                    {/* Conversations */}
+                    <div className="flex-1 overflow-y-auto">
+                      {loadingConversations ? (
+                        <div className="flex items-center justify-center py-12">
+                          <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
+                        </div>
+                      ) : conversations.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                          <MessageCircle className="w-12 h-12 text-stone-300 dark:text-stone-600 mb-3" />
+                          <p className="text-sm text-stone-500 dark:text-stone-400">
+                            Nu ai conversații încă
+                          </p>
+                          <button
+                            onClick={() => setShowNewConversation(true)}
+                            className="mt-3 text-sm text-amber-600 dark:text-amber-400 font-medium hover:underline"
+                          >
+                            Începe o conversație
+                          </button>
+                        </div>
+                      ) : (
+                        conversations.map((conv) => (
+                          <div
+                            key={conv.id}
+                            onClick={() => openConversation(conv)}
+                            className={`p-4 border-b border-stone-50 dark:border-stone-700/50 cursor-pointer transition-colors ${
+                              selectedConversation?.id === conv.id
+                                ? "bg-amber-50 dark:bg-amber-900/20"
+                                : conv.unreadUser
+                                ? "bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20"
+                                : "hover:bg-stone-50 dark:hover:bg-stone-700/50"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[3px] flex-shrink-0">
+                                <div className="w-full h-full rounded-full bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
+                                  <img src="/Nutopia4.png" alt="Nutopia" className="w-10 h-10 object-contain" />
+                                </div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className={`font-semibold truncate text-sm ${conv.unreadUser ? "text-stone-900 dark:text-stone-100" : "text-stone-700 dark:text-stone-300"}`}>
+                                    Nutopia
+                                  </p>
+                                  <span className="text-xs text-stone-400 flex-shrink-0">
+                                    {formatDate(conv.updatedAt)}
+                                  </span>
+                                </div>
+                                <p className={`text-sm truncate ${conv.unreadUser ? "font-semibold text-stone-800 dark:text-stone-200" : "text-stone-500 dark:text-stone-400"}`}>
+                                  {conv.subject}
+                                </p>
+                              </div>
+                              {conv.unreadUser && (
+                                <div className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label 
-                      htmlFor="message"
-                      className={`absolute left-4 transition-all duration-300 pointer-events-none ${
-                        focusedField === 'message' || formState.message 
-                          ? "-top-2.5 text-xs bg-white dark:bg-stone-800 px-2 text-amber-600 dark:text-amber-400" 
-                          : "top-3.5 text-stone-400"
-                      }`}
-                    >
-                      Mesajul tău *
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formState.message}
-                      onChange={handleChange}
-                      onFocus={() => setFocusedField('message')}
-                      onBlur={() => setFocusedField(null)}
-                      required
-                      rows={5}
-                      className="w-full px-4 py-3.5 rounded-xl border-2 border-stone-200 dark:border-stone-600 bg-transparent text-stone-800 dark:text-stone-100 focus:border-amber-500 dark:focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300 resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 text-white font-semibold shadow-lg shadow-amber-600/25 hover:shadow-xl hover:shadow-amber-600/30 transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                  >
-                    {isSubmitting ? (
+                  {/* Chat View */}
+                  <div className={`flex-1 flex flex-col ${!selectedConversation && !showNewConversation ? 'hidden sm:flex' : 'flex'}`}>
+                    {showNewConversation ? (
+                      // New Conversation Form
                       <>
-                        <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        Se trimite...
+                        <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex items-center gap-3">
+                          <button
+                            onClick={() => setShowNewConversation(false)}
+                            className="sm:hidden p-2 -ml-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <h3 className="font-semibold text-stone-800 dark:text-stone-100">
+                            Conversație nouă
+                          </h3>
+                        </div>
+                        <form onSubmit={createConversation} className="flex-1 p-6 flex flex-col gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
+                              Subiect
+                            </label>
+                            <input
+                              type="text"
+                              value={newSubject}
+                              onChange={(e) => setNewSubject(e.target.value)}
+                              placeholder="ex: Întrebare despre produse"
+                              className="w-full px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                              required
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
+                              Mesaj
+                            </label>
+                            <textarea
+                              value={newFirstMessage}
+                              onChange={(e) => setNewFirstMessage(e.target.value)}
+                              placeholder="Scrie mesajul tău aici..."
+                              className="w-full h-32 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none"
+                              required
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            disabled={creatingConversation || !newSubject.trim() || !newFirstMessage.trim()}
+                            className="w-full py-3 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                          >
+                            {creatingConversation ? (
+                              <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Se trimite...
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-5 h-5" />
+                                Trimite mesajul
+                              </>
+                            )}
+                          </button>
+                        </form>
+                      </>
+                    ) : selectedConversation ? (
+                      // Chat Messages
+                      <>
+                        {/* Chat Header */}
+                        <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex items-center gap-3">
+                          <button
+                            onClick={() => setSelectedConversation(null)}
+                            className="sm:hidden p-2 -ml-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[2px]">
+                            <div className="w-full h-full rounded-full bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
+                              <img src="/Nutopia4.png" alt="Nutopia" className="w-8 h-8 object-contain" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-stone-800 dark:text-stone-100">Nutopia</p>
+                            <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                              {selectedConversation.subject}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {selectedConversation.status === "closed" ? (
+                              <span className="px-2 py-1 text-xs rounded-full bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-400">
+                                Închis
+                              </span>
+                            ) : (
+                              <button
+                                onClick={closeConversation}
+                                className="px-3 py-1.5 text-xs rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                              >
+                                Închide
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-stone-50 dark:bg-stone-900/50">
+                          {loadingMessages ? (
+                            <div className="flex items-center justify-center h-full">
+                              <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
+                            </div>
+                          ) : (
+                            <>
+                              {messages.map((msg, index) => (
+                                <div
+                                  key={msg.id}
+                                  className={`flex ${msg.isFromAdmin ? "justify-start" : "justify-end"}`}
+                                >
+                                  <div className={`flex items-end gap-2 max-w-[75%] ${msg.isFromAdmin ? "" : "flex-row-reverse"}`}>
+                                    {msg.isFromAdmin && (
+                                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[2px] flex-shrink-0">
+                                        <div className="w-full h-full rounded-full bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
+                                          <img src="/Nutopia4.png" alt="Nutopia" className="w-5 h-5 object-contain" />
+                                        </div>
+                                      </div>
+                                    )}
+                                    <div
+                                      className={`px-4 py-2.5 ${
+                                        msg.isFromAdmin
+                                          ? "bg-stone-100 dark:bg-stone-700 text-stone-800 dark:text-stone-100 rounded-2xl rounded-bl-sm"
+                                          : "bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl rounded-br-sm"
+                                      } ${msg.sending ? "opacity-70" : ""}`}
+                                    >
+                                      <p className="text-[15px] whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                      <p className={`text-[10px] mt-1 text-right ${msg.isFromAdmin ? "text-stone-400" : "text-white/70"}`}>
+                                        {msg.sending ? "Se trimite..." : formatTime(msg.createdAt)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                              <div ref={messagesEndRef} />
+                            </>
+                          )}
+                        </div>
+
+                        {/* Input */}
+                        {selectedConversation.status === "open" ? (
+                          <form onSubmit={sendMessage} className="p-4 border-t border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-800">
+                            <div className="flex items-center gap-3">
+                              <input
+                                ref={inputRef}
+                                type="text"
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                placeholder="Scrie un mesaj..."
+                                className="flex-1 px-4 py-3 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none text-sm"
+                              />
+                              <button
+                                type="submit"
+                                disabled={!newMessage.trim() || sending}
+                                className="p-3 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <Send className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </form>
+                        ) : (
+                          <div className="p-4 border-t border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 text-center text-sm text-stone-500">
+                            Această conversație este închisă
+                          </div>
+                        )}
                       </>
                     ) : (
-                      <>
-                        Trimite mesajul
-                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      </>
+                      // Empty State
+                      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                        <div className="w-20 h-20 rounded-full bg-stone-100 dark:bg-stone-700 flex items-center justify-center mb-4">
+                          <MessageCircle className="w-10 h-10 text-stone-400 dark:text-stone-500" />
+                        </div>
+                        <h4 className="font-semibold text-stone-700 dark:text-stone-300 mb-2">
+                          Mesajele tale
+                        </h4>
+                        <p className="text-sm text-stone-500 dark:text-stone-400 mb-4">
+                          Selectează o conversație sau începe una nouă
+                        </p>
+                        <button
+                          onClick={() => setShowNewConversation(true)}
+                          className="px-6 py-2.5 bg-amber-500 text-white font-medium rounded-full hover:bg-amber-600 transition-colors text-sm"
+                        >
+                          Mesaj nou
+                        </button>
+                      </div>
                     )}
-                  </button>
-                </form>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -337,7 +683,6 @@ export default function Contact() {
                   Răspundem la mesaje în maxim 2 ore!
                 </p>
               </div>
-
 
               <div className="relative h-48 rounded-2xl overflow-hidden">
                 <iframe

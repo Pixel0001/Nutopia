@@ -1,10 +1,42 @@
 "use client";
 import Image from "next/image";
-import { useCallback } from "react";
-import { MapPin, Phone, Mail, Clock, Instagram, Facebook, ArrowUp, Heart, Send } from "lucide-react";
+import { useCallback, useState } from "react";
+import { MapPin, Phone, Mail, Clock, Instagram, Facebook, ArrowUp, Heart, Send, Loader2, CheckCircle } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState(null);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim() || newsletterLoading) return;
+
+    setNewsletterLoading(true);
+    setNewsletterMessage(null);
+
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: newsletterEmail })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setNewsletterMessage({ success: true, text: data.message });
+        setNewsletterEmail("");
+      } else {
+        setNewsletterMessage({ success: false, text: data.error });
+      }
+    } catch (error) {
+      setNewsletterMessage({ success: false, text: "A apărut o eroare" });
+    } finally {
+      setNewsletterLoading(false);
+    }
+  };
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({
@@ -73,22 +105,42 @@ export default function Footer() {
               <h3 className="text-2xl font-bold mb-2">Abonează-te la Newsletter</h3>
               <p className="text-stone-400">Primește oferte exclusive și noutăți direct în inbox</p>
             </div>
-            <form className="flex w-full max-w-md gap-3">
-              <div className="relative flex-1">
-                <input
-                  type="email"
-                  placeholder="Adresa ta de email"
-                  className="w-full px-5 py-3.5 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300"
-                />
-              </div>
-              <button
-                type="submit"
-                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center gap-2 group"
-              >
-                <span className="hidden sm:inline">Abonează-te</span>
-                <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </form>
+            <div className="w-full max-w-md">
+              <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
+                <div className="relative flex-1">
+                  <input
+                    type="email"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="Adresa ta de email"
+                    className="w-full px-5 py-3.5 rounded-xl bg-stone-800 border border-stone-700 text-white placeholder-stone-500 focus:border-amber-500 focus:ring-0 outline-none transition-colors duration-300"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={newsletterLoading}
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 flex items-center gap-2 group disabled:opacity-50"
+                >
+                  {newsletterLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <span className="hidden sm:inline">Abonează-te</span>
+                      <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </button>
+              </form>
+              {newsletterMessage && (
+                <div className={`mt-3 flex items-center gap-2 text-sm ${
+                  newsletterMessage.success ? "text-green-400" : "text-red-400"
+                }`}>
+                  {newsletterMessage.success && <CheckCircle className="w-4 h-4" />}
+                  {newsletterMessage.text}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
