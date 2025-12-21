@@ -169,7 +169,7 @@ export default function Hero() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600"></span>
             </span>
             <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
-              Livrare gratuită la comenzi peste 100 RON
+              Livrare gratuită la comenzi peste 500 lei
             </span>
           </div>
 
