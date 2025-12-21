@@ -98,7 +98,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <a href="#hero" onClick={(e) => scrollToSection(e, '#hero')} className="inline-block mb-6">
               <Image
-                src="/Nutopia4.PNG"
+                src="/Nutopia4.png"
                 alt="Nutopia Logo"
                 width={150}
                 height={60}
