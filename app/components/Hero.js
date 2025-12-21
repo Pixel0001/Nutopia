@@ -169,7 +169,7 @@ export default function Hero() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-600"></span>
             </span>
             <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
-              Livrare gratuită la comenzi peste 100 RON
+              Livrare gratuită la comenzi peste 500 lei
             </span>
           </div>
 
@@ -182,7 +182,7 @@ export default function Hero() {
             <div className="relative inline-block">
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 blur-3xl opacity-20 scale-150" />
               <Image
-                src="/Nutopia4.png"
+                src="/Nutopia4.PNG"
                 alt="Nutopia Logo"
                 width={280}
                 height={112}
@@ -281,30 +281,30 @@ export default function Hero() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}
           >
-            <div className="flex flex-wrap justify-center gap-12 sm:gap-20">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-12 lg:gap-20">
               {stats.map((stat, index) => {
                 const IconComponent = stat.icon;
                 return (
                   <div
                     key={index}
-                    className="group relative flex flex-col items-center gap-2 cursor-default"
+                    className="group relative flex flex-col items-center gap-1 sm:gap-2 cursor-default"
                   >
                     {/* Icon simplu */}
                     <IconComponent 
-                      className="w-6 h-6 text-amber-600 dark:text-amber-500 group-hover:scale-110 transition-transform duration-300" 
+                      className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 dark:text-amber-500 group-hover:scale-110 transition-transform duration-300" 
                       strokeWidth={1.5}
                     />
                     
                     {/* Value cu animație de numărare */}
-                    <span className="text-4xl sm:text-5xl font-bold text-stone-800 dark:text-stone-100">
+                    <span className="text-2xl sm:text-4xl lg:text-5xl font-bold text-stone-800 dark:text-stone-100">
                       {countValues[index]}
                     </span>
-                    <span className="text-sm font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                    <span className="text-xs sm:text-sm font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                       {stat.label}
                     </span>
 
                     {/* Progress bar individual */}
-                    <div className="w-16 h-0.5 bg-stone-200 dark:bg-stone-700 rounded-full overflow-hidden mt-3">
+                    <div className="w-12 sm:w-16 h-0.5 bg-stone-200 dark:bg-stone-700 rounded-full overflow-hidden mt-2 sm:mt-3">
                       <div
                         className="h-full bg-amber-500 rounded-full"
                         style={{
@@ -317,7 +317,7 @@ export default function Hero() {
 
                     {/* Separator */}
                     {index < stats.length - 1 && (
-                      <div className="hidden sm:block absolute -right-6 sm:-right-10 top-1/2 -translate-y-1/2 w-px h-20 bg-stone-200 dark:bg-stone-700" />
+                      <div className="hidden sm:block absolute -right-6 lg:-right-10 top-1/2 -translate-y-1/2 w-px h-16 lg:h-20 bg-stone-200 dark:bg-stone-700" />
                     )}
                   </div>
                 );
@@ -346,10 +346,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-amber-50 dark:from-stone-950 to-transparent pointer-events-none" />
 
-      {/* CSS for floating animation */}
       <style jsx>{`
         @keyframes float {
           0%, 100% {

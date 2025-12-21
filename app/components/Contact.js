@@ -87,14 +87,12 @@ export default function Contact() {
       id="contact" 
       className="relative py-24 overflow-hidden bg-gradient-to-b from-amber-50/30 via-white to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950"
     >
-      {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-amber-100/40 dark:bg-amber-900/10 blur-3xl" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-orange-100/40 dark:bg-orange-900/10 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div 
           className={`text-center mb-16 transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -113,7 +111,6 @@ export default function Contact() {
         </div>
 
         <div className="grid lg:grid-cols-5 gap-12">
-          {/* Contact Form */}
           <div 
             className={`lg:col-span-3 transition-all duration-1000 delay-200 ${
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
@@ -142,7 +139,6 @@ export default function Contact() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-6">
-                    {/* Name Field */}
                     <div className="relative">
                       <label 
                         htmlFor="name"
@@ -167,7 +163,6 @@ export default function Contact() {
                       />
                     </div>
 
-                    {/* Email Field */}
                     <div className="relative">
                       <label 
                         htmlFor="email"
@@ -194,7 +189,6 @@ export default function Contact() {
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-6">
-                    {/* Phone Field */}
                     <div className="relative">
                       <label 
                         htmlFor="phone"
@@ -218,7 +212,6 @@ export default function Contact() {
                       />
                     </div>
 
-                    {/* Subject Field */}
                     <div className="relative">
                       <label 
                         htmlFor="subject"
@@ -244,7 +237,6 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  {/* Message Field */}
                   <div className="relative">
                     <label 
                       htmlFor="message"
@@ -269,7 +261,6 @@ export default function Contact() {
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -295,7 +286,6 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Info */}
           <div 
             className={`lg:col-span-2 transition-all duration-1000 delay-400 ${
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
@@ -326,7 +316,6 @@ export default function Contact() {
                 );
               })}
 
-              {/* Social Links */}
               <div className="p-6 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white">
                 <h4 className="font-semibold mb-4">Urmărește-ne</h4>
                 <div className="flex gap-3">
@@ -349,7 +338,7 @@ export default function Contact() {
                 </p>
               </div>
 
-              {/* Map */}
+
               <div className="relative h-48 rounded-2xl overflow-hidden">
                 <iframe
                   src="https://maps.google.com/maps?q=Strada+Columna+42,+Chisinau,+Moldova&t=&z=17&ie=UTF8&iwloc=&output=embed"

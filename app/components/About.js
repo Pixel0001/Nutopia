@@ -63,14 +63,13 @@ export default function About() {
       id="about" 
       className="relative py-24 overflow-hidden bg-gradient-to-b from-white via-stone-50 to-amber-50/50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-950"
     >
-      {/* Background decoration */}
+
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/4 -right-64 w-[500px] h-[500px] rounded-full bg-amber-200/20 dark:bg-amber-900/10 blur-3xl" />
         <div className="absolute bottom-1/4 -left-64 w-[500px] h-[500px] rounded-full bg-orange-200/20 dark:bg-orange-900/10 blur-3xl" />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div 
           className={`text-center mb-16 transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -87,16 +86,14 @@ export default function About() {
           </p>
         </div>
 
-        {/* Main content grid */}
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left side - Story */}
+
           <div 
             className={`transition-all duration-1000 delay-200 ${
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
             }`}
           >
             <div className="relative">
-              {/* Decorative quote */}
               <div className="absolute -top-4 -left-4 text-8xl text-amber-200 dark:text-amber-900/30 font-serif leading-none select-none">
                 "
               </div>
@@ -118,7 +115,6 @@ export default function About() {
                 </p>
               </div>
 
-              {/* Highlights */}
               <div className="mt-8 grid grid-cols-2 gap-3">
                 {highlights.map((item, index) => (
                   <div 
@@ -131,7 +127,6 @@ export default function About() {
                 ))}
               </div>
 
-              {/* CTA Buttons */}
               <div className="mt-10 flex flex-wrap gap-4">
                 <a
                   href="#contact"
@@ -150,7 +145,6 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right side - Features */}
           <div 
             className={`transition-all duration-1000 delay-400 ${
               isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
@@ -165,12 +159,10 @@ export default function About() {
                     className="group relative p-6 rounded-2xl bg-white dark:bg-stone-800 border border-stone-100 dark:border-stone-700 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1"
                     style={{ transitionDelay: `${index * 100}ms` }}
                   >
-                    {/* Icon */}
                     <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${feature.color} shadow-lg mb-4`}>
                       <IconComponent className="w-6 h-6 text-white" strokeWidth={2} />
                     </div>
 
-                    {/* Content */}
                     <h3 className="text-lg font-semibold text-stone-800 dark:text-stone-100 mb-2 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
                       {feature.title}
                     </h3>
@@ -178,14 +170,12 @@ export default function About() {
                       {feature.description}
                     </p>
 
-                    {/* Hover accent line */}
                     <div className={`absolute bottom-0 left-0 right-0 h-1 rounded-b-2xl bg-gradient-to-r ${feature.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left`} />
                   </div>
                 );
               })}
             </div>
 
-            {/* Stats card */}
             <div className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/25">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
@@ -205,7 +195,6 @@ export default function About() {
           </div>
         </div>
 
-        {/* Trust badges */}
         <div 
           className={`mt-20 transition-all duration-1000 delay-600 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"

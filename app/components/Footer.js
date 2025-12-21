@@ -210,7 +210,6 @@ export default function Footer() {
               </a>
             </div>
 
-            {/* Scroll to Top Button */}
             <button
               onClick={scrollToTop}
               className="w-10 h-10 rounded-xl bg-stone-800 flex items-center justify-center text-stone-400 hover:bg-amber-500 hover:text-white transition-all duration-300 group"
