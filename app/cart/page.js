@@ -245,8 +245,8 @@ export default function CartPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900">
         <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-amber-200 dark:border-amber-900 rounded-full animate-pulse"></div>
+          <div className="relative w-20 h-20 mx-auto">
+            <div className="absolute inset-0 border-4 border-amber-200 dark:border-amber-900 rounded-full animate-pulse"></div>
             <div className="absolute inset-0 flex items-center justify-center">
               <ShoppingCart className="w-8 h-8 text-amber-600 animate-bounce" />
             </div>
