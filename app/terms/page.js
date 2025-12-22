@@ -405,10 +405,10 @@ export default function TermsPage() {
                 Pentru întrebări despre acești termeni și condiții, ne poți contacta:
               </p>
               <div className="bg-stone-50 dark:bg-stone-900 rounded-xl p-4 space-y-2">
-                <p><strong>Email:</strong> contact@nutopia.md</p>
-                <p><strong>Telefon:</strong> +373 69 123 456</p>
-                <p><strong>Adresă:</strong> Chișinău, Moldova</p>
-                <p><strong>Program:</strong> Luni - Vineri: 9:00 - 18:00</p>
+                <p><strong>Magazin:</strong> Nutopia</p>
+                <p><strong>Email:</strong> nutopia.md@gmail.com</p>
+                <p><strong>Telefon:</strong> +373 79 677 652</p>
+                <p><strong>Locație:</strong> Str. Columna 42, Chișinău</p>
               </div>
             </div>
           </section>

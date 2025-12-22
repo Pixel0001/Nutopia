@@ -76,8 +76,8 @@ export default function Footer() {
 
   const contactInfo = [
     { icon: MapPin, text: "Str. Columna 42, Chișinău" },
-    { icon: Phone, text: "+373 60 123 456" },
-    { icon: Mail, text: "contact@nutopia.md" },
+    { icon: Phone, text: "+373 79 677 652" },
+    { icon: Mail, text: "nutopia.md@gmail.com" },
     { icon: Clock, text: "Luni - Sâmbătă: 9:00 - 19:00" },
   ];
 
