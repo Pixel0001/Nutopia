@@ -107,6 +107,8 @@ export default function CartPage() {
       const res = await fetch("/api/cart");
       const data = await res.json();
       setCartItems(data.items || []);
+      // Sincronizează iconița din navbar când se încarcă coșul
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Error fetching cart:", error);
     } finally {

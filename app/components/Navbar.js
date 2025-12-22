@@ -2,12 +2,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ShoppingCart, User, LogOut, Menu, X, Shield, Package, ChevronDown } from "lucide-react";
+import { ShoppingCart, User, LogOut, Menu, X, Shield, Package, ChevronDown, Loader2 } from "lucide-react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const [cartLoading, setCartLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -77,6 +78,7 @@ export default function Navbar() {
   };
 
   const fetchCartCount = async () => {
+    setCartLoading(true);
     try {
       const res = await fetch("/api/cart");
       if (res.ok) {
@@ -85,6 +87,8 @@ export default function Navbar() {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
+    } finally {
+      setCartLoading(false);
     }
   };
 
@@ -193,8 +197,12 @@ export default function Navbar() {
                 href="/cart"
                 className="relative group p-2.5 rounded-full text-zinc-600 hover:text-amber-600 dark:text-zinc-400 dark:hover:text-amber-500 transition-all duration-300 hover:bg-amber-50 dark:hover:bg-amber-900/20"
               >
-                <ShoppingCart className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-                {cartCount > 0 && (
+                {cartLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ShoppingCart className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                )}
+                {!cartLoading && cartCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 animate-in zoom-in duration-200">
                     {cartCount}
                   </span>
@@ -305,8 +313,12 @@ export default function Navbar() {
                 href="/cart"
                 className="relative p-2.5 rounded-full text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors"
               >
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
+                {cartLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ShoppingCart className="w-5 h-5" />
+                )}
+                {!cartLoading && cartCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
