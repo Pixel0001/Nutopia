@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
-const PAYPAL_API = process.env.NODE_ENV === "production" 
-  ? "https://api-m.paypal.com" 
-  : "https://api-m.sandbox.paypal.com";
+// Always use sandbox for now, switch to production API when ready
+const PAYPAL_API = "https://api-m.sandbox.paypal.com";
 
 async function getPayPalAccessToken() {
+  if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET) {
+    throw new Error("PayPal credentials not configured");
+  }
+
   const auth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`).toString("base64");
   
   const response = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
@@ -20,9 +23,9 @@ async function getPayPalAccessToken() {
 
   const data = await response.json();
   
-  if (!data.access_token) {
-    console.error("PayPal auth error:", data);
-    throw new Error("Failed to get PayPal access token");
+  if (!response.ok || !data.access_token) {
+    console.error("PayPal auth error:", JSON.stringify(data, null, 2));
+    throw new Error(data.error_description || "Failed to get PayPal access token");
   }
   
   return data.access_token;
@@ -32,27 +35,45 @@ export async function POST(request) {
   try {
     const { amount } = await request.json();
 
-    if (!PAYPAL_CLIENT_ID || !PAYPAL_SECRET) {
-      console.error("PayPal credentials missing");
+    // Check for credentials
+    if (!PAYPAL_CLIENT_ID) {
+      console.error("NEXT_PUBLIC_PAYPAL_CLIENT_ID is missing");
       return NextResponse.json(
-        { error: "PayPal credentials not configured" },
+        { error: "PayPal Client ID not configured" },
         { status: 500 }
+      );
+    }
+
+    if (!PAYPAL_SECRET) {
+      console.error("PAYPAL_SECRET is missing");
+      return NextResponse.json(
+        { error: "PayPal Secret not configured" },
+        { status: 500 }
+      );
+    }
+
+    if (!amount || amount <= 0) {
+      return NextResponse.json(
+        { error: "Invalid amount" },
+        { status: 400 }
       );
     }
 
     const accessToken = await getPayPalAccessToken();
 
-    // Convert MDL to USD (approximate rate)
+    // Convert MDL to USD (approximate rate ~18 MDL = 1 USD)
     const usdAmount = (amount / 18).toFixed(2);
 
-    // Simplified order payload without items breakdown
+    // Ensure minimum amount for PayPal
+    const finalAmount = Math.max(parseFloat(usdAmount), 1.00).toFixed(2);
+
     const orderPayload = {
       intent: "CAPTURE",
       purchase_units: [
         {
           amount: {
             currency_code: "USD",
-            value: usdAmount,
+            value: finalAmount,
           },
           description: "Nutopia - Produse naturale",
         },
@@ -61,8 +82,8 @@ export async function POST(request) {
         brand_name: "Nutopia",
         landing_page: "NO_PREFERENCE",
         user_action: "PAY_NOW",
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/cart?paypal=success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/cart?paypal=cancelled`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nutopia-bice.vercel.app"}/cart?paypal=success`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nutopia-bice.vercel.app"}/cart?paypal=cancelled`,
       },
     };
 
@@ -78,10 +99,10 @@ export async function POST(request) {
     const order = await response.json();
 
     if (!response.ok) {
-      console.error("PayPal order error:", JSON.stringify(order, null, 2));
+      console.error("PayPal order creation failed:", JSON.stringify(order, null, 2));
       return NextResponse.json(
-        { error: order.message || "Failed to create PayPal order" },
-        { status: 500 }
+        { error: order.details?.[0]?.description || order.message || "Failed to create PayPal order" },
+        { status: response.status }
       );
     }
 
@@ -91,9 +112,9 @@ export async function POST(request) {
       links: order.links,
     });
   } catch (error) {
-    console.error("PayPal create order error:", error);
+    console.error("PayPal create order error:", error.message);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: error.message || "Internal server error" },
       { status: 500 }
     );
   }
