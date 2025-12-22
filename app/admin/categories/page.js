@@ -24,6 +24,7 @@ export default function AdminCategoriesPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -78,16 +79,56 @@ export default function AdminCategoriesPage() {
     setImagePreview(null);
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result;
-        setImagePreview(base64);
-        setFormData((prev) => ({ ...prev, image: base64 }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Verifică tipul fișierului
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Tip de fișier invalid. Sunt permise doar: JPG, PNG, WEBP, GIF");
+      return;
+    }
+
+    // Verifică mărimea (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Fișierul este prea mare. Mărimea maximă este 5MB");
+      return;
+    }
+
+    setUploading(true);
+    
+    // Arată preview local imediat
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
+
+    try {
+      // Upload în Vercel Blob
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "categories");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setImagePreview(data.url);
+        setFormData((prev) => ({ ...prev, image: data.url }));
+      } else {
+        alert(data.error || "Eroare la încărcarea imaginii");
+        setImagePreview(null);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("A apărut o eroare la încărcarea imaginii");
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+      URL.revokeObjectURL(localPreview);
     }
   };
 
@@ -328,30 +369,54 @@ export default function AdminCategoriesPage() {
                   Imagine categorie
                 </label>
                 <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="relative aspect-[16/9] rounded-lg sm:rounded-xl border-2 border-dashed border-gray-300 hover:border-amber-500 transition-colors cursor-pointer overflow-hidden bg-gray-50"
+                  onClick={() => !uploading && fileInputRef.current?.click()}
+                  className={`relative aspect-[16/9] rounded-lg sm:rounded-xl border-2 border-dashed transition-colors overflow-hidden bg-gray-50 ${
+                    uploading 
+                      ? "border-amber-400 cursor-wait" 
+                      : "border-gray-300 hover:border-amber-500 cursor-pointer"
+                  }`}
                 >
                   {imagePreview ? (
-                    <Image
-                      src={imagePreview}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                    />
+                    <>
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        fill
+                        className={`object-cover ${uploading ? "opacity-50" : ""}`}
+                      />
+                      {uploading && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30">
+                          <Loader2 className="w-8 h-8 text-white animate-spin mb-2" />
+                          <p className="text-sm text-white font-medium">Se încarcă...</p>
+                        </div>
+                      )}
+                    </>
+                  ) : uploading ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500 animate-spin mb-2" />
+                      <p className="text-xs sm:text-sm text-gray-600">Se încarcă imaginea...</p>
+                    </div>
                   ) : (
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400 mb-1 sm:mb-2" />
                       <p className="text-xs sm:text-sm text-gray-500">Apasă pentru imagine</p>
+                      <p className="text-xs text-gray-400 mt-1">Max 5MB • JPG, PNG, WEBP</p>
                     </div>
                   )}
                 </div>
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                   onChange={handleImageChange}
                   className="hidden"
+                  disabled={uploading}
                 />
+                {formData.image && !uploading && (
+                  <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                    <Check className="w-3 h-3" /> Imagine încărcată cu succes
+                  </p>
+                )}
               </div>
 
               {/* Name & Order - 2 columns */}
@@ -396,13 +461,14 @@ export default function AdminCategoriesPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base"
+                  disabled={uploading}
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm sm:text-base disabled:opacity-50"
                 >
                   Anulează
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || uploading}
                   className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors font-medium disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 text-sm sm:text-base"
                 >
                   {saving ? (
@@ -410,6 +476,11 @@ export default function AdminCategoriesPage() {
                       <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                       <span className="hidden sm:inline">Se salvează...</span>
                       <span className="sm:hidden">Salvare...</span>
+                    </>
+                  ) : uploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      <span>Se încarcă...</span>
                     </>
                   ) : (
                     <>
