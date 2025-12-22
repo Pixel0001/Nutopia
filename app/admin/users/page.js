@@ -29,6 +29,7 @@ export default function AdminUsersPage() {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [updating, setUpdating] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -40,7 +41,20 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers();
+    fetchCurrentUser();
   }, []);
+
+  const fetchCurrentUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(data.user);
+      }
+    } catch (error) {
+      console.error("Fetch current user error:", error);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -161,10 +175,17 @@ export default function AdminUsersPage() {
 
   const revokeRole = async (userId) => {
     const userToRevoke = users.find(u => u.id === userId);
+    const currentUserIsSuperAdmin = currentUser && isSuperAdmin(currentUser.email);
     
-    // Prevent revoking admin roles
-    if (userToRevoke && (userToRevoke.role === "admin" || isSuperAdmin(userToRevoke.email))) {
-      alert("Nu poți revoca rolul administratorilor!");
+    // Super admins cannot be modified
+    if (userToRevoke && isSuperAdmin(userToRevoke.email)) {
+      alert("Nu poți revoca rolul unui super admin!");
+      return;
+    }
+    
+    // Only super admins can revoke admin roles
+    if (userToRevoke && userToRevoke.role === "admin" && !currentUserIsSuperAdmin) {
+      alert("Doar super administratorii pot revoca rolul altor administratori!");
       return;
     }
     
@@ -206,10 +227,17 @@ export default function AdminUsersPage() {
 
   const toggleBlockUser = async (userId, currentlyBlocked) => {
     const userToBlock = users.find(u => u.id === userId);
+    const currentUserIsSuperAdmin = currentUser && isSuperAdmin(currentUser.email);
     
-    // Prevent blocking admins
-    if (userToBlock && (userToBlock.role === "admin" || isSuperAdmin(userToBlock.email))) {
-      alert("Nu poți bloca administratori!");
+    // Super admins cannot be blocked
+    if (userToBlock && isSuperAdmin(userToBlock.email)) {
+      alert("Nu poți bloca un super admin!");
+      return;
+    }
+    
+    // Only super admins can block other admins
+    if (userToBlock && userToBlock.role === "admin" && !currentUserIsSuperAdmin) {
+      alert("Doar super administratorii pot bloca alți administratori!");
       return;
     }
     
@@ -493,27 +521,64 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      {user.role === "admin" || isSuperAdmin(user.email) ? (
-                        <div className={`inline-flex items-center gap-2 text-sm font-medium rounded-lg px-3 py-1.5 border ${getRoleColor(user.role, user.email)}`}>
-                          {getRoleIcon(user.role, user.email)}
-                          <span>{getRoleText(user.role, user.email)}</span>
-                          {isSuperAdmin(user.email) && (
-                            <span className="text-xs opacity-75">(Protejat)</span>
-                          )}
-                        </div>
-                      ) : (
-                        <select
-                          value={user.role}
-                          onChange={(e) => updateUserRole(user.id, e.target.value)}
-                          disabled={updating === user.id || user.isBlocked}
-                          className={`text-sm font-medium rounded-lg px-3 py-1.5 border cursor-pointer ${getRoleColor(
-                            user.role, user.email
-                          )} ${updating === user.id || user.isBlocked ? "opacity-50" : ""}`}
-                        >
-                          <option value="user">Utilizator</option>
-                          <option value="moderator">Moderator</option>
-                        </select>
-                      )}
+                      {(() => {
+                        const currentUserIsSuperAdmin = currentUser && isSuperAdmin(currentUser.email);
+                        const targetIsSuperAdmin = isSuperAdmin(user.email);
+                        
+                        // Super admins always show badge (cannot be modified)
+                        if (targetIsSuperAdmin) {
+                          return (
+                            <div className={`inline-flex items-center gap-2 text-sm font-medium rounded-lg px-3 py-1.5 border ${getRoleColor(user.role, user.email)}`}>
+                              {getRoleIcon(user.role, user.email)}
+                              <span>{getRoleText(user.role, user.email)}</span>
+                              <span className="text-xs opacity-75">(Protejat)</span>
+                            </div>
+                          );
+                        }
+                        
+                        // Super admin can modify any user (including admins)
+                        if (currentUserIsSuperAdmin) {
+                          return (
+                            <select
+                              value={user.role}
+                              onChange={(e) => updateUserRole(user.id, e.target.value)}
+                              disabled={updating === user.id || user.isBlocked}
+                              className={`text-sm font-medium rounded-lg px-3 py-1.5 border cursor-pointer ${getRoleColor(
+                                user.role, user.email
+                              )} ${updating === user.id || user.isBlocked ? "opacity-50" : ""}`}
+                            >
+                              <option value="user">Utilizator</option>
+                              <option value="moderator">Moderator</option>
+                              <option value="admin">Administrator</option>
+                            </select>
+                          );
+                        }
+                        
+                        // Regular admins can only see badge for other admins
+                        if (user.role === "admin") {
+                          return (
+                            <div className={`inline-flex items-center gap-2 text-sm font-medium rounded-lg px-3 py-1.5 border ${getRoleColor(user.role, user.email)}`}>
+                              {getRoleIcon(user.role, user.email)}
+                              <span>{getRoleText(user.role, user.email)}</span>
+                            </div>
+                          );
+                        }
+                        
+                        // Regular admins can modify moderators and users
+                        return (
+                          <select
+                            value={user.role}
+                            onChange={(e) => updateUserRole(user.id, e.target.value)}
+                            disabled={updating === user.id || user.isBlocked}
+                            className={`text-sm font-medium rounded-lg px-3 py-1.5 border cursor-pointer ${getRoleColor(
+                              user.role, user.email
+                            )} ${updating === user.id || user.isBlocked ? "opacity-50" : ""}`}
+                          >
+                            <option value="user">Utilizator</option>
+                            <option value="moderator">Moderator</option>
+                          </select>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-gray-800">
@@ -526,59 +591,78 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        {/* Block/Unblock button - Disabled for admins */}
-                        <button
-                          onClick={() => toggleBlockUser(user.id, user.isBlocked)}
-                          disabled={updating === user.id || user.role === "admin" || isSuperAdmin(user.email)}
-                          className={`p-2 rounded-lg transition-colors ${
-                            user.role === "admin" || isSuperAdmin(user.email)
-                              ? "text-gray-300 cursor-not-allowed"
-                              : user.isBlocked 
-                                ? "text-green-600 hover:bg-green-50" 
-                                : "text-orange-600 hover:bg-orange-50"
-                          }`}
-                          title={
-                            user.role === "admin" || isSuperAdmin(user.email)
-                              ? "Nu poți bloca administratori"
-                              : user.isBlocked 
-                                ? "Deblochează utilizatorul" 
-                                : "Blochează utilizatorul"
-                          }
-                        >
-                          {updating === user.id ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                          ) : user.isBlocked ? (
-                            <Unlock className="w-5 h-5" />
-                          ) : (
-                            <Ban className="w-5 h-5" />
-                          )}
-                        </button>
+                      {(() => {
+                        const currentUserIsSuperAdmin = currentUser && isSuperAdmin(currentUser.email);
+                        const targetIsSuperAdmin = isSuperAdmin(user.email);
+                        const targetIsAdmin = user.role === "admin";
                         
-                        {/* Revoke role button - Disabled for admins */}
-                        {user.role !== "user" && (
-                          <button
-                            onClick={() => revokeRole(user.id)}
-                            disabled={updating === user.id || user.role === "admin" || isSuperAdmin(user.email)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              user.role === "admin" || isSuperAdmin(user.email)
-                                ? "text-gray-300 cursor-not-allowed"
-                                : "text-red-600 hover:bg-red-50"
-                            }`}
-                            title={
-                              user.role === "admin" || isSuperAdmin(user.email)
-                                ? "Nu poți revoca rolul administratorilor"
-                                : "Revocă rolul"
-                            }
-                          >
-                            {updating === user.id ? (
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-5 h-5" />
+                        // Cannot modify super admins at all
+                        const cannotModify = targetIsSuperAdmin;
+                        // Can only modify admins if current user is super admin
+                        const canModifyAdmin = targetIsAdmin && currentUserIsSuperAdmin;
+                        // Can modify non-admins always (if admin)
+                        const canModify = !cannotModify && (!targetIsAdmin || canModifyAdmin);
+                        
+                        return (
+                          <div className="flex items-center gap-1">
+                            {/* Block/Unblock button */}
+                            <button
+                              onClick={() => toggleBlockUser(user.id, user.isBlocked)}
+                              disabled={updating === user.id || !canModify}
+                              className={`p-2 rounded-lg transition-colors ${
+                                !canModify
+                                  ? "text-gray-300 cursor-not-allowed"
+                                  : user.isBlocked 
+                                    ? "text-green-600 hover:bg-green-50" 
+                                    : "text-orange-600 hover:bg-orange-50"
+                              }`}
+                              title={
+                                targetIsSuperAdmin
+                                  ? "Nu poți bloca un super admin"
+                                  : targetIsAdmin && !currentUserIsSuperAdmin
+                                    ? "Doar super administratorii pot bloca alți administratori"
+                                    : user.isBlocked 
+                                      ? "Deblochează utilizatorul" 
+                                      : "Blochează utilizatorul"
+                              }
+                            >
+                              {updating === user.id ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                              ) : user.isBlocked ? (
+                                <Unlock className="w-5 h-5" />
+                              ) : (
+                                <Ban className="w-5 h-5" />
+                              )}
+                            </button>
+                            
+                            {/* Revoke role button */}
+                            {user.role !== "user" && (
+                              <button
+                                onClick={() => revokeRole(user.id)}
+                                disabled={updating === user.id || !canModify}
+                                className={`p-2 rounded-lg transition-colors ${
+                                  !canModify
+                                    ? "text-gray-300 cursor-not-allowed"
+                                    : "text-red-600 hover:bg-red-50"
+                                }`}
+                                title={
+                                  targetIsSuperAdmin
+                                    ? "Nu poți revoca rolul unui super admin"
+                                    : targetIsAdmin && !currentUserIsSuperAdmin
+                                      ? "Doar super administratorii pot revoca rolul altor administratori"
+                                      : "Revocă rolul"
+                                }
+                              >
+                                {updating === user.id ? (
+                                  <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-5 h-5" />
+                                )}
+                              </button>
                             )}
-                          </button>
-                        )}
-                      </div>
+                          </div>
+                        );
+                      })()}
                     </td>
                   </tr>
                 ))

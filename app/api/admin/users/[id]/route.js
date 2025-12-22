@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin, getAdminUser } from "@/lib/adminAuth";
+import { isSuperAdmin } from "@/config/admins";
 
 // PATCH - Update user role or block status (Admin only)
 export async function PATCH(request, { params }) {
@@ -22,6 +23,39 @@ export async function PATCH(request, { params }) {
       );
     }
 
+    // Get target user
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      select: { email: true, role: true }
+    });
+
+    if (!targetUser) {
+      return NextResponse.json(
+        { error: "Utilizatorul nu a fost găsit" },
+        { status: 404 }
+      );
+    }
+
+    // Check if current user is super admin
+    const currentUserIsSuperAdmin = isSuperAdmin(auth.user.email);
+    const targetUserIsSuperAdmin = isSuperAdmin(targetUser.email);
+
+    // Super admins cannot be modified by anyone (including themselves)
+    if (targetUserIsSuperAdmin) {
+      return NextResponse.json(
+        { error: "Nu poți modifica un super admin" },
+        { status: 403 }
+      );
+    }
+
+    // Only super admins can modify other admins
+    if (targetUser.role === "admin" && !currentUserIsSuperAdmin) {
+      return NextResponse.json(
+        { error: "Doar super administratorii pot modifica alți administratori" },
+        { status: 403 }
+      );
+    }
+
     const updateData = {};
 
     // Handle role update
@@ -32,6 +66,15 @@ export async function PATCH(request, { params }) {
           { status: 400 }
         );
       }
+      
+      // Only super admins can grant admin role
+      if (role === "admin" && !currentUserIsSuperAdmin) {
+        return NextResponse.json(
+          { error: "Doar super administratorii pot acorda rolul de administrator" },
+          { status: 403 }
+        );
+      }
+      
       updateData.role = role;
     }
 
@@ -85,6 +128,39 @@ export async function DELETE(request, { params }) {
       return NextResponse.json(
         { error: "Nu îți poți șterge propriul rol" },
         { status: 400 }
+      );
+    }
+
+    // Get target user
+    const targetUser = await prisma.user.findUnique({
+      where: { id },
+      select: { email: true, role: true }
+    });
+
+    if (!targetUser) {
+      return NextResponse.json(
+        { error: "Utilizatorul nu a fost găsit" },
+        { status: 404 }
+      );
+    }
+
+    // Check if current user is super admin
+    const currentUserIsSuperAdmin = isSuperAdmin(auth.user.email);
+    const targetUserIsSuperAdmin = isSuperAdmin(targetUser.email);
+
+    // Super admins cannot have their role revoked
+    if (targetUserIsSuperAdmin) {
+      return NextResponse.json(
+        { error: "Nu poți revoca rolul unui super admin" },
+        { status: 403 }
+      );
+    }
+
+    // Only super admins can revoke admin roles
+    if (targetUser.role === "admin" && !currentUserIsSuperAdmin) {
+      return NextResponse.json(
+        { error: "Doar super administratorii pot revoca rolul altor administratori" },
+        { status: 403 }
       );
     }
 
