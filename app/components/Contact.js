@@ -26,6 +26,7 @@ export default function Contact() {
   
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const pollingRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -68,6 +69,32 @@ export default function Contact() {
       fetchConversations();
     }
   }, [user]);
+
+  // Polling pentru mesaje noi la fiecare 5 secunde
+  useEffect(() => {
+    if (selectedConversation && !loadingMessages) {
+      pollingRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/messages/${selectedConversation.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            const newMessages = data.conversation?.messages || [];
+            if (newMessages.length > messages.filter(m => !m.sending).length) {
+              setMessages(newMessages);
+            }
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      }, 5000);
+    }
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [selectedConversation, loadingMessages, messages.length]);
 
   // Scroll to bottom when messages change
   useEffect(() => {

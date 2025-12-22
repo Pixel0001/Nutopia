@@ -1,12 +1,12 @@
 import { put, del } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getAdminUser } from "@/lib/adminAuth";
 
 export async function POST(request) {
   try {
-    // Verifică autentificarea
-    const user = await getCurrentUser();
-    if (!user || (user.role !== "admin" && user.role !== "moderator")) {
+    // Verifică autentificarea - ia rolul din baza de date
+    const user = await getAdminUser();
+    if (!user || (user.role !== "superadmin" && user.role !== "admin" && user.role !== "moderator")) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -70,8 +70,8 @@ export async function POST(request) {
 // Endpoint pentru ștergerea imaginilor (opțional)
 export async function DELETE(request) {
   try {
-    const user = await getCurrentUser();
-    if (!user || (user.role !== "admin" && user.role !== "moderator")) {
+    const user = await getAdminUser();
+    if (!user || (user.role !== "superadmin" && user.role !== "admin" && user.role !== "moderator")) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }

@@ -40,6 +40,7 @@ export default function AdminMessagesPage() {
   const longPressMessageId = useRef(null);
   
   const messagesEndRef = useRef(null);
+  const pollingRef = useRef(null);
 
   useEffect(() => {
     fetchConversations();
@@ -57,6 +58,32 @@ export default function AdminMessagesPage() {
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
+
+  // Polling pentru mesaje noi la fiecare 5 secunde
+  useEffect(() => {
+    if (selectedConversation && !loadingMessages) {
+      pollingRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/admin/messages/${selectedConversation.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            const newMessages = data.conversation?.messages || [];
+            if (newMessages.length > messages.length) {
+              setMessages(newMessages);
+            }
+          }
+        } catch (err) {
+          console.error("Polling error:", err);
+        }
+      }, 5000);
+    }
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
+    };
+  }, [selectedConversation, loadingMessages, messages.length]);
 
   const fetchConversations = async () => {
     try {
