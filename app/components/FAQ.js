@@ -1,55 +1,43 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Plus, Minus, HelpCircle, MessageCircle, CreditCard, Truck, Leaf, RotateCcw, Store, Percent, Package, Gift } from "lucide-react";
+import { Plus, Minus, HelpCircle, MessageCircle, CreditCard, Truck, Leaf, RotateCcw, Store, Percent } from "lucide-react";
 
 const faqs = [
   {
     question: "Care sunt metodele de plată acceptate?",
-    answer: "Acceptăm plata cu cardul (Visa, Mastercard), transfer bancar și plata ramburs la livrare. Pentru comenzile din magazinul fizic, acceptăm și numerar.",
+    answer: "Acceptăm plata cu cardul bancar (online sau la livrare, prin curier) și numerar la livrare, în funcție de opțiunea aleasă de client. Toate plățile sunt sigure și conforme legislației în vigoare.",
     icon: CreditCard,
     color: "from-blue-500 to-indigo-600"
   },
   {
     question: "Cât durează livrarea?",
-    answer: "Livrăm în toată Moldova în 24-48 de ore pentru comenzile plasate până la ora 14:00. Pentru Chișinău, oferim și livrare în aceeași zi pentru comenzi plasate până la ora 12:00.",
+    answer: "Livrarea comenzilor se efectuează, de regulă, în 1–3 zile lucrătoare de la confirmarea comenzii. În perioadele aglomerate, termenul de livrare poate varia ușor.",
     icon: Truck,
     color: "from-emerald-500 to-teal-600"
   },
   {
     question: "Produsele sunt naturale 100%?",
-    answer: "Da, toate produsele noastre sunt 100% naturale, fără aditivi, conservanți sau zahăr adăugat. Lucrăm doar cu producători verificați și de încredere.",
+    answer: "Da. Produsele Nutopia sunt realizate din ingrediente naturale, atent selecționate. Nu adăugăm aditivi artificiali inutili. Fiecare produs este pregătit cu grijă pentru a păstra gustul și calitatea.",
     icon: Leaf,
     color: "from-green-500 to-emerald-600"
   },
   {
     question: "Pot returna produsele?",
-    answer: "Oferim garanția satisfacției. Dacă nu ești mulțumit de produse, le poți returna în termen de 14 zile pentru o rambursare completă, fără întrebări.",
+    answer: "Produsele alimentare nu pot fi returnate, conform legislației în vigoare, din motive de siguranță alimentară. Excepție fac cazurile în care produsul ajunge deteriorat sau greșit, situație în care te rugăm să ne contactezi în cel mai scurt timp.",
     icon: RotateCcw,
     color: "from-orange-500 to-red-500"
   },
   {
     question: "Aveți și magazin fizic?",
-    answer: "Da, magazinul nostru fizic se află în centrul Chișinăului. Ne poți vizita de luni până sâmbătă, între orele 9:00 - 19:00. Adresa exactă o găsești în secțiunea Contact.",
+    answer: "Da 😊 Nutopia dispune și de magazin fizic, unde ne poți găsi și alege produsele direct. Noi ne aflăm pe strada Columna 42.",
     icon: Store,
     color: "from-amber-500 to-orange-600"
   },
   {
     question: "Oferiți discount pentru comenzi mari?",
-    answer: "Da, oferim reduceri pentru comenzi de peste 300 MDL (10% discount) și pentru comenzi de peste 700 MDL (15% discount). Pentru comenzi corporate, contactează-ne pentru oferte personalizate.",
+    answer: "Da. Pentru comenzi mai mari sau colaborări, oferim discounturi personalizate. Te rugăm să ne contactezi direct pentru a discuta detaliile.",
     icon: Percent,
     color: "from-pink-500 to-rose-600"
-  },
-  {
-    question: "Cum pot urmări comanda mea?",
-    answer: "După plasarea comenzii, vei primi un email cu detaliile și un link de tracking. De asemenea, te vom contacta telefonic înainte de livrare pentru confirmare.",
-    icon: Package,
-    color: "from-violet-500 to-purple-600"
-  },
-  {
-    question: "Livrarea este gratuită?",
-    answer: "Livrarea este gratuită pentru comenzi de peste 500 MDL. Pentru comenzi sub această sumă, costul livrării este de 50 MDL în Chișinău și 70 MDL în restul țării.",
-    icon: Gift,
-    color: "from-cyan-500 to-blue-600"
   }
 ];
 

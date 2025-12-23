@@ -271,7 +271,7 @@ export default function Contact() {
     {
       icon: Clock,
       title: "Program",
-      details: ["Site: 24/24", "Magazin: L-V 09:00-19:00", "S-D 10:00-18:00"],
+      details: ["Site: 24/24", "Magazin: Luni-Vineri 09:00-19:00", "Sâmbătă-Duminică 10:00-18:00"],
     }
   ];
 
