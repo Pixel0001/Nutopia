@@ -251,19 +251,19 @@ export default function Menu() {
     <section 
       ref={sectionRef}
       id="menu" 
-      className="py-24 bg-gradient-to-b from-white to-amber-50/30 dark:from-stone-900 dark:to-stone-950"
+      className="py-12 sm:py-24 bg-gradient-to-b from-white to-amber-50/30 dark:from-stone-900 dark:to-stone-950 overflow-x-hidden"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div 
-          className={`text-center mb-16 transition-all duration-1000 ${
+          className={`text-center mb-8 sm:mb-16 transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-sm font-medium mb-4">
             Produse Premium
           </span>
-          <h2 className="text-4xl sm:text-5xl font-bold text-stone-800 dark:text-stone-100 mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-stone-800 dark:text-stone-100 mb-4">
             Descoperă Selecția Noastră
           </h2>
           <p className="max-w-2xl mx-auto text-lg text-stone-600 dark:text-stone-400">
@@ -273,7 +273,7 @@ export default function Menu() {
 
         {/* Category Filter */}
         <div 
-          className={`flex flex-wrap justify-center gap-2 sm:gap-3 mb-12 transition-all duration-1000 delay-200 ${
+          className={`flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12 transition-all duration-1000 delay-200 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
@@ -305,7 +305,7 @@ export default function Menu() {
         </div>
 
         {/* Products Grid */}
-        <div className="space-y-20">
+        <div className="space-y-12 sm:space-y-20">
           {filteredProducts.map((category, categoryIndex) => (
             <div 
               key={category.category}
@@ -315,10 +315,10 @@ export default function Menu() {
               style={{ transitionDelay: `${300 + categoryIndex * 150}ms` }}
             >
               {/* Category Header */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
                 {/* Category Image */}
                 {category.categoryImage && (
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 relative rounded-full overflow-hidden shadow-lg ring-2 ring-amber-200 dark:ring-amber-800">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 flex-shrink-0 relative rounded-full overflow-hidden shadow-lg ring-2 ring-amber-200 dark:ring-amber-800">
                     <Image
                       src={category.categoryImage}
                       alt={category.category}
@@ -327,34 +327,41 @@ export default function Menu() {
                     />
                   </div>
                 )}
-                <div className="flex-1">
-                  <h3 className="text-2xl sm:text-3xl font-bold text-stone-800 dark:text-stone-100">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-stone-800 dark:text-stone-100 truncate">
                     {category.category}
                   </h3>
-                  <p className="text-stone-500 dark:text-stone-400 mt-1">
+                  <p className="text-sm sm:text-base text-stone-500 dark:text-stone-400 mt-0.5 sm:mt-1 line-clamp-1 sm:line-clamp-none">
                     {category.description}
                   </p>
                 </div>
                 <a 
-                  href="#" 
+                  href="/menu" 
                   className="hidden sm:flex items-center gap-1 text-amber-600 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400 font-medium transition-colors"
                 >
                   Vezi toate
                   <ChevronRight className="w-4 h-4" />
                 </a>
+                <a 
+                  href="/menu" 
+                  className="flex sm:hidden items-center gap-1 text-sm text-amber-600 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-400 font-medium transition-colors"
+                >
+                  Toate
+                  <ChevronRight className="w-4 h-4" />
+                </a>
               </div>
 
-              {/* Products */}
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {category.items.map((item, itemIndex) => {
+              {/* Products - limit to 4 items per category on homepage */}
+              <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {category.items.slice(0, 4).map((item, itemIndex) => {
                   const isOutOfStock = item.stock !== undefined && item.stock <= 0;
                   return (
                   <div
                     key={item.name}
-                    className={`group bg-white dark:bg-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 dark:border-stone-700 ${isOutOfStock ? 'opacity-75' : ''}`}
+                    className={`group bg-white dark:bg-stone-800 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 dark:border-stone-700 ${isOutOfStock ? 'opacity-75' : ''}`}
                   >
                     {/* Image Container */}
-                    <div className="relative h-48 overflow-hidden bg-stone-100 dark:bg-stone-700">
+                    <div className="relative h-36 sm:h-48 overflow-hidden bg-stone-100 dark:bg-stone-700">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -394,34 +401,34 @@ export default function Menu() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-5">
+                    <div className="p-3 sm:p-5">
                       {/* Name & Description */}
-                      <h4 className="font-semibold text-stone-800 dark:text-stone-100 mb-2 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
+                      <h4 className="font-semibold text-stone-800 dark:text-stone-100 mb-1 sm:mb-2 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors text-sm sm:text-base">
                         {item.name}
                       </h4>
-                      <p className="text-sm text-stone-500 dark:text-stone-400 line-clamp-2 mb-4">
+                      <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 line-clamp-2 mb-3 sm:mb-4">
                         {item.description}
                       </p>
 
                       {/* Price & Action */}
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className={`text-2xl font-bold ${isOutOfStock ? 'text-stone-400' : 'text-amber-600 dark:text-amber-500'}`}>
+                          <span className={`text-lg sm:text-2xl font-bold ${isOutOfStock ? 'text-stone-400' : 'text-amber-600 dark:text-amber-500'}`}>
                             {item.price}
                           </span>
-                          <span className="text-sm text-stone-400 ml-1">
+                          <span className="text-xs sm:text-sm text-stone-400 ml-1">
                             {item.unit}
                           </span>
                         </div>
                         {isOutOfStock ? (
-                          <span className="px-4 py-2 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-400 text-sm font-medium">
+                          <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-400 text-xs sm:text-sm font-medium">
                             Indisponibil
                           </span>
                         ) : (
                           <button 
                             onClick={() => handleAddToCart(item)}
                             disabled={addingToCart[item.name]}
-                            className="px-4 py-2 rounded-full bg-stone-100 dark:bg-stone-700 text-gray-900 dark:text-stone-300 text-sm font-medium hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 transition-all duration-300 disabled:opacity-50 flex items-center gap-2"
+                            className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-stone-100 dark:bg-stone-700 text-gray-900 dark:text-stone-300 text-xs sm:text-sm font-medium hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 transition-all duration-300 disabled:opacity-50 flex items-center gap-1 sm:gap-2"
                           >
                             {addingToCart[item.name] ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -440,29 +447,69 @@ export default function Menu() {
                   </div>
                   );
                 })}
+                
+                {/* Show "more products" card if there are more than 4 items */}
+                {category.items.length > 4 && (
+                  <a
+                    href="/menu"
+                    className="group bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-amber-200 dark:border-amber-800 flex flex-col items-center justify-center min-h-[200px] sm:min-h-[320px]"
+                  >
+                    <div className="text-center p-4 sm:p-6">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-amber-500 text-white flex items-center justify-center text-xl sm:text-2xl font-bold shadow-lg">
+                        +{category.items.length - 4}
+                      </div>
+                      <p className="text-base sm:text-lg font-semibold text-stone-800 dark:text-stone-100 mb-1 sm:mb-2">
+                        Încă {category.items.length - 4} produse
+                      </p>
+                      <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mb-3 sm:mb-4">
+                        în categoria {category.category}
+                      </p>
+                      <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-500 font-medium text-sm sm:text-base group-hover:gap-2 transition-all">
+                        Vezi toate
+                        <ChevronRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </a>
+                )}
               </div>
             </div>
           ))}
         </div>
 
-        {/* Bottom CTA */}
+        {/* View All Products Button */}
         <div 
-          className={`mt-20 text-center transition-all duration-1000 delay-700 ${
+          className={`mt-8 sm:mt-12 text-center transition-all duration-1000 delay-500 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-8 rounded-3xl bg-gradient-to-r from-amber-500 to-orange-500 shadow-2xl shadow-amber-500/25">
+          <a
+            href="/menu"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-amber-600 hover:bg-amber-700 text-white font-semibold text-base sm:text-lg transition-all duration-300 shadow-lg shadow-amber-600/25 hover:shadow-xl hover:shadow-amber-600/30"
+          >
+            <LayoutGrid className="w-5 h-5" />
+            Vezi toate produsele
+            <ChevronRight className="w-5 h-5" />
+          </a>
+        </div>
+
+        {/* Bottom CTA */}
+        <div 
+          className={`mt-8 sm:mt-12 text-center transition-all duration-1000 delay-700 ${
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          }`}
+        >
+          <div className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-4 p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-amber-500 to-orange-500 shadow-2xl shadow-amber-500/25">
             <div className="text-white text-center sm:text-left">
-              <h3 className="text-xl sm:text-2xl font-bold mb-1">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">
                 Nu găsești ce cauți?
               </h3>
-              <p className="text-amber-100">
+              <p className="text-amber-100 text-sm sm:text-base">
                 Contactează-ne pentru comenzi personalizate
               </p>
             </div>
             <a
               href="#contact"
-              className="px-8 py-3 rounded-full bg-white text-amber-600 font-semibold hover:bg-amber-50 transition-colors shadow-lg"
+              className="px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-white text-amber-600 font-semibold hover:bg-amber-50 transition-colors shadow-lg text-sm sm:text-base"
             >
               Contactează-ne
             </a>
