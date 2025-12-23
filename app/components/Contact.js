@@ -371,13 +371,13 @@ export default function Contact() {
                   </div>
                 </div>
               ) : (
-                <div className="flex h-[500px]">
+                <div className="flex h-[400px] sm:h-[500px]">
                   {/* Conversations List */}
                   <div className={`w-full sm:w-80 border-r border-stone-100 dark:border-stone-700 flex flex-col ${selectedConversation ? 'hidden sm:flex' : 'flex'}`}>
                     {/* Header */}
-                    <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+                    <div className="p-3 sm:p-4 border-b border-stone-100 dark:border-stone-700 flex items-center justify-between">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                           {user.image ? (
                             <img 
                               src={user.image} 
@@ -429,7 +429,7 @@ export default function Contact() {
                           <div
                             key={conv.id}
                             onClick={() => openConversation(conv)}
-                            className={`p-4 border-b border-stone-50 dark:border-stone-700/50 cursor-pointer transition-colors ${
+                            className={`p-3 sm:p-4 border-b border-stone-50 dark:border-stone-700/50 cursor-pointer transition-colors ${
                               selectedConversation?.id === conv.id
                                 ? "bg-amber-50 dark:bg-amber-900/20"
                                 : conv.unreadUser
@@ -437,10 +437,10 @@ export default function Contact() {
                                 : "hover:bg-stone-50 dark:hover:bg-stone-700/50"
                             }`}
                           >
-                            <div className="flex items-center gap-3">
-                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[3px] flex-shrink-0">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[2px] flex-shrink-0">
                                 <div className="w-full h-full rounded-full bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
-                                  <img src="/Nutopia4.png" alt="Nutopia" className="w-10 h-10 object-contain" />
+                                  <img src="/Nutopia4.png" alt="Nutopia" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
                                 </div>
                               </div>
                               <div className="flex-1 min-w-0">
@@ -471,20 +471,20 @@ export default function Contact() {
                     {showNewConversation ? (
                       // New Conversation Form
                       <>
-                        <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex items-center gap-3">
+                        <div className="p-2 sm:p-4 border-b border-stone-100 dark:border-stone-700 flex items-center gap-2 sm:gap-3">
                           <button
                             onClick={() => setShowNewConversation(false)}
-                            className="sm:hidden p-2 -ml-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700"
+                            className="sm:hidden p-1.5 -ml-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700"
                           >
                             <ChevronLeft className="w-5 h-5" />
                           </button>
-                          <h3 className="font-semibold text-stone-800 dark:text-stone-100">
+                          <h3 className="font-semibold text-stone-800 dark:text-stone-100 text-sm sm:text-base">
                             Conversație nouă
                           </h3>
                         </div>
-                        <form onSubmit={createConversation} className="flex-1 p-6 flex flex-col gap-4">
+                        <form onSubmit={createConversation} className="flex-1 p-3 sm:p-6 flex flex-col gap-3 sm:gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
+                            <label className="block text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 mb-1 sm:mb-2">
                               Subiect
                             </label>
                             <input
@@ -492,36 +492,36 @@ export default function Contact() {
                               value={newSubject}
                               onChange={(e) => setNewSubject(e.target.value)}
                               placeholder="ex: Întrebare despre produse"
-                              className="w-full px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
+                              className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none text-sm"
                               required
                             />
                           </div>
                           <div className="flex-1">
-                            <label className="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">
+                            <label className="block text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 mb-1 sm:mb-2">
                               Mesaj
                             </label>
                             <textarea
                               value={newFirstMessage}
                               onChange={(e) => setNewFirstMessage(e.target.value)}
                               placeholder="Scrie mesajul tău aici..."
-                              className="w-full h-32 px-4 py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none"
+                              className="w-full h-24 sm:h-32 px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none resize-none text-sm"
                               required
                             />
                           </div>
                           <button
                             type="submit"
                             disabled={creatingConversation || !newSubject.trim() || !newFirstMessage.trim()}
-                            className="w-full py-3 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full py-2.5 sm:py-3 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                           >
                             {creatingConversation ? (
                               <>
-                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                                 Se trimite...
                               </>
                             ) : (
                               <>
-                                <Send className="w-5 h-5" />
-                                Trimite mesajul
+                                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                                Trimite
                               </>
                             )}
                           </button>
@@ -531,21 +531,21 @@ export default function Contact() {
                       // Chat Messages
                       <>
                         {/* Chat Header */}
-                        <div className="p-4 border-b border-stone-100 dark:border-stone-700 flex items-center gap-3">
+                        <div className="p-2 sm:p-4 border-b border-stone-100 dark:border-stone-700 flex items-center gap-2 sm:gap-3">
                           <button
                             onClick={() => setSelectedConversation(null)}
-                            className="sm:hidden p-2 -ml-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700"
+                            className="sm:hidden p-1.5 -ml-1 rounded-full hover:bg-stone-100 dark:hover:bg-stone-700"
                           >
                             <ChevronLeft className="w-5 h-5" />
                           </button>
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[2px]">
+                          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[2px]">
                             <div className="w-full h-full rounded-full bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
-                              <img src="/Nutopia4.png" alt="Nutopia" className="w-8 h-8 object-contain" />
+                              <img src="/Nutopia4.png" alt="Nutopia" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-stone-800 dark:text-stone-100">Nutopia</p>
-                            <p className="text-xs text-stone-500 dark:text-stone-400 truncate">
+                            <p className="font-semibold text-stone-800 dark:text-stone-100 text-sm sm:text-base">Nutopia</p>
+                            <p className="text-[10px] sm:text-xs text-stone-500 dark:text-stone-400 truncate">
                               {selectedConversation.subject}
                             </p>
                           </div>
@@ -566,7 +566,7 @@ export default function Contact() {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-stone-50 dark:bg-stone-900/50">
+                        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-2 sm:space-y-3 bg-stone-50 dark:bg-stone-900/50">
                           {loadingMessages ? (
                             <div className="flex items-center justify-center h-full">
                               <Loader2 className="w-6 h-6 animate-spin text-amber-500" />
@@ -578,23 +578,23 @@ export default function Contact() {
                                   key={msg.id}
                                   className={`flex ${msg.isFromAdmin ? "justify-start" : "justify-end"}`}
                                 >
-                                  <div className={`flex items-end gap-2 max-w-[75%] ${msg.isFromAdmin ? "" : "flex-row-reverse"}`}>
+                                  <div className={`flex items-end gap-1.5 sm:gap-2 max-w-[85%] sm:max-w-[75%] ${msg.isFromAdmin ? "" : "flex-row-reverse"}`}>
                                     {msg.isFromAdmin && (
-                                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[2px] flex-shrink-0">
+                                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-pink-500 p-[1.5px] sm:p-[2px] flex-shrink-0">
                                         <div className="w-full h-full rounded-full bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
-                                          <img src="/Nutopia4.png" alt="Nutopia" className="w-5 h-5 object-contain" />
+                                          <img src="/Nutopia4.png" alt="Nutopia" className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
                                         </div>
                                       </div>
                                     )}
                                     <div
-                                      className={`px-4 py-2.5 ${
+                                      className={`px-3 py-2 sm:px-4 sm:py-2.5 ${
                                         msg.isFromAdmin
                                           ? "bg-stone-100 dark:bg-stone-700 text-stone-800 dark:text-stone-100 rounded-2xl rounded-bl-sm"
                                           : "bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl rounded-br-sm"
                                       } ${msg.sending ? "opacity-70" : ""}`}
                                     >
-                                      <p className="text-[15px] whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-                                      <p className={`text-[10px] mt-1 text-right ${msg.isFromAdmin ? "text-stone-400" : "text-white/70"}`}>
+                                      <p className="text-[13px] sm:text-[15px] whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                      <p className={`text-[9px] sm:text-[10px] mt-0.5 sm:mt-1 text-right ${msg.isFromAdmin ? "text-stone-400" : "text-white/70"}`}>
                                         {msg.sending ? "Se trimite..." : formatTime(msg.createdAt)}
                                       </p>
                                     </div>
@@ -608,22 +608,22 @@ export default function Contact() {
 
                         {/* Input */}
                         {selectedConversation.status === "open" ? (
-                          <form onSubmit={sendMessage} className="p-4 border-t border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-800">
-                            <div className="flex items-center gap-3">
+                          <form onSubmit={sendMessage} className="p-2 sm:p-4 border-t border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-800">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <input
                                 ref={inputRef}
                                 type="text"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 placeholder="Scrie un mesaj..."
-                                className="flex-1 px-4 py-3 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none text-sm"
+                                className="flex-1 px-3 py-2 sm:px-4 sm:py-3 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-700 text-stone-800 dark:text-stone-100 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none text-xs sm:text-sm"
                               />
                               <button
                                 type="submit"
                                 disabled={!newMessage.trim() || sending}
-                                className="p-3 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="p-2 sm:p-3 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                               >
-                                <Send className="w-5 h-5" />
+                                <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                               </button>
                             </div>
                           </form>

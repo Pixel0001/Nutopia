@@ -279,21 +279,6 @@ export default function Footer() {
               <ArrowUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
             </button>
           </div>
-
-          {/* Made by credit */}
-          <div className="mt-6 pt-4 border-t border-stone-800 text-center">
-            <p className="text-xs text-stone-600">
-              Made by Racu Ștefan • 
-              <a 
-                href="https://wa.me/37368046719" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="ml-1 text-stone-500 hover:text-green-500 transition-colors duration-300"
-              >
-                068046719
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     </footer>

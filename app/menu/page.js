@@ -130,7 +130,7 @@ export default function MenuPage() {
       {/* Image Modal */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
           onClick={() => setSelectedImage(null)}
         >
           <button
@@ -138,11 +138,11 @@ export default function MenuPage() {
               e.stopPropagation();
               setSelectedImage(null);
             }}
-            className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+            className="absolute top-20 sm:top-6 right-4 z-[110] w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
-          <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
+          <div className="relative max-w-4xl max-h-[80vh] sm:max-h-[90vh] w-full h-full mt-12 sm:mt-0">
             <Image
               src={selectedImage.image}
               alt={selectedImage.name}
