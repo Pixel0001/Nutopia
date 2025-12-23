@@ -119,7 +119,7 @@ export default function CartPage() {
   // Funcție pentru a determina incrementul și min bazat pe unitatea produsului
   const getQuantityConfig = (unit) => {
     const unitLower = (unit || "").toLowerCase();
-    if (unitLower.includes("buc")) {
+    if (unitLower.includes("buc") || unitLower.includes("borcan")) {
       return { increment: 1, min: 1, display: (q) => q.toFixed(0) };
     }
     // Pentru kg și g - increment 0.1

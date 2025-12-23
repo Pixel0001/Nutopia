@@ -187,8 +187,19 @@ export default function Menu() {
   // Funcție pentru a determina cantitatea inițială bazată pe unitate
   const getInitialQuantity = (unit) => {
     const unitLower = (unit || "").toLowerCase();
-    if (unitLower.includes("buc")) return 1;
-    return 0.1; // default pentru kg și g - 0.1 kg
+    if (unitLower.includes("buc") || unitLower.includes("borcan")) return 1;
+    if (unitLower.includes("kg") || unitLower.includes("g")) return 0.1; // 0.1 kg = 100g
+    return 1; // default
+  };
+
+  // Funcție pentru a formata afișarea unității (kg -> 100g)
+  const formatUnitDisplay = (unit, price) => {
+    const unitLower = (unit || "").toLowerCase();
+    if (unitLower.includes("kg")) {
+      // Prețurile sunt deja pentru 100g
+      return { displayPrice: price, displayUnit: "MDL/100g" };
+    }
+    return { displayPrice: price, displayUnit: unit };
   };
 
   const handleAddToCart = async (item) => {
@@ -449,12 +460,19 @@ export default function Menu() {
                       {/* Price & Action */}
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className={`text-lg sm:text-2xl font-bold ${isOutOfStock ? 'text-stone-400' : 'text-amber-600 dark:text-amber-500'}`}>
-                            {item.price}
-                          </span>
-                          <span className="text-xs sm:text-sm text-stone-400 ml-1">
-                            {item.unit}
-                          </span>
+                          {(() => {
+                            const { displayPrice, displayUnit } = formatUnitDisplay(item.unit, item.price);
+                            return (
+                              <>
+                                <span className={`text-lg sm:text-2xl font-bold ${isOutOfStock ? 'text-stone-400' : 'text-amber-600 dark:text-amber-500'}`}>
+                                  {displayPrice}
+                                </span>
+                                <span className="text-xs sm:text-sm text-stone-400 ml-1">
+                                  {displayUnit}
+                                </span>
+                              </>
+                            );
+                          })()}
                         </div>
                         {isOutOfStock ? (
                           <span className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-400 text-xs sm:text-sm font-medium">

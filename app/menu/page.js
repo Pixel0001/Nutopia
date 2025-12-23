@@ -37,8 +37,9 @@ export default function MenuPage() {
   // Funcție pentru a determina cantitatea inițială bazată pe unitate
   const getInitialQuantity = (unit) => {
     const unitLower = (unit || "").toLowerCase();
-    if (unitLower.includes("buc")) return 1;
-    return 0.1; // default pentru kg și g - 0.1 kg
+    if (unitLower.includes("buc") || unitLower.includes("borcan")) return 1;
+    if (unitLower.includes("kg") || unitLower.includes("g")) return 0.1; // 0.1 kg = 100g
+    return 1; // default
   };
 
   const handleAddToCart = async (item) => {
@@ -302,6 +303,16 @@ export default function MenuPage() {
   );
 }
 
+// Funcție pentru a formata afișarea unității (kg -> 100g) - la nivel global
+const formatUnitDisplay = (unit, price) => {
+  const unitLower = (unit || "").toLowerCase();
+  if (unitLower.includes("kg")) {
+    // Prețurile sunt deja pentru 100g
+    return { displayPrice: price, displayUnit: "100g" };
+  }
+  return { displayPrice: price, displayUnit: unit?.replace("MDL/", "") };
+};
+
 // Product Card Component
 function ProductCard({ item, addingToCart, addedToCart, onAddToCart, onImageClick }) {
   const itemKey = item.name;
@@ -346,14 +357,19 @@ function ProductCard({ item, addingToCart, addedToCart, onAddToCart, onImageClic
         </p>
         
         <div className="flex items-center justify-between">
-          <div>
-            <span className="text-lg font-bold text-amber-600 dark:text-amber-500">
-              {item.price} MDL
-            </span>
-            <span className="text-xs text-stone-400 dark:text-stone-500 ml-1">
-              /{item.unit?.replace("MDL/", "")}
-            </span>
-          </div>
+          {(() => {
+            const { displayPrice, displayUnit } = formatUnitDisplay(item.unit, item.price);
+            return (
+              <div>
+                <span className="text-lg font-bold text-amber-600 dark:text-amber-500">
+                  {displayPrice} MDL
+                </span>
+                <span className="text-xs text-stone-400 dark:text-stone-500 ml-1">
+                  /{displayUnit}
+                </span>
+              </div>
+            );
+          })()}
           
           {isOutOfStock ? (
             <span className="px-3 py-2 bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-400 text-sm rounded-full">
