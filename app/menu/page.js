@@ -2,8 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ShoppingCart, Check, Loader2, LayoutGrid, ArrowLeft, Search
- } from "lucide-react";
+import { ShoppingCart, Check, Loader2, LayoutGrid, ArrowLeft, Search, X } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -14,6 +13,7 @@ export default function MenuPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [addingToCart, setAddingToCart] = useState({});
   const [addedToCart, setAddedToCart] = useState({});
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -126,6 +126,34 @@ export default function MenuPage() {
 
   return (
     <>
+      {/* Image Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button
+            onClick={() => setSelectedImage(null)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="relative max-w-4xl max-h-[90vh] w-full h-full">
+            <Image
+              src={selectedImage.image}
+              alt={selectedImage.name}
+              fill
+              className="object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-center">
+            <p className="text-lg font-semibold">{selectedImage.name}</p>
+            <p className="text-amber-400 font-bold">{selectedImage.price} MDL</p>
+          </div>
+        </div>
+      )}
+      
       <Navbar />
       <main className="min-h-screen pt-20 pb-12 bg-gradient-to-b from-amber-50 to-white dark:from-stone-900 dark:to-stone-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -205,6 +233,7 @@ export default function MenuPage() {
                     addingToCart={addingToCart}
                     addedToCart={addedToCart}
                     onAddToCart={handleAddToCart}
+                    onImageClick={setSelectedImage}
                   />
                 ))}
               </div>
@@ -245,6 +274,7 @@ export default function MenuPage() {
                         addingToCart={addingToCart}
                         addedToCart={addedToCart}
                         onAddToCart={handleAddToCart}
+                        onImageClick={setSelectedImage}
                       />
                     ))}
                   </div>
@@ -270,7 +300,7 @@ export default function MenuPage() {
 }
 
 // Product Card Component
-function ProductCard({ item, addingToCart, addedToCart, onAddToCart }) {
+function ProductCard({ item, addingToCart, addedToCart, onAddToCart, onImageClick }) {
   const itemKey = item.name;
   const isAdding = addingToCart[itemKey];
   const isAdded = addedToCart[itemKey];
@@ -279,7 +309,10 @@ function ProductCard({ item, addingToCart, addedToCart, onAddToCart }) {
   return (
     <div className={`group bg-white dark:bg-stone-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 dark:border-stone-700 ${isOutOfStock ? 'opacity-75' : ''}`}>
       {/* Image */}
-      <div className="relative h-40 sm:h-48 overflow-hidden bg-stone-100 dark:bg-stone-700">
+      <div 
+        className="relative h-40 sm:h-48 overflow-hidden bg-stone-100 dark:bg-stone-700 cursor-pointer"
+        onClick={() => onImageClick && onImageClick(item)}
+      >
         <Image
           src={item.image}
           alt={item.name}
