@@ -15,12 +15,12 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
 
   const navLinks = [
-    { name: "Acasă", href: "#hero" },
-    { name: "Produse", href: "#menu" },
-    { name: "Despre Noi", href: "#about" },
-    { name: "Recenzii", href: "#reviews" },
-    { name: "FAQ", href: "#faq" },
-    { name: "Contact", href: "#contact" },
+    { name: "Acasă", href: "/#hero" },
+    { name: "Produse", href: "/#menu" },
+    { name: "Despre Noi", href: "/#about" },
+    { name: "Recenzii", href: "/#reviews" },
+    { name: "FAQ", href: "/#faq" },
+    { name: "Contact", href: "/#contact" },
   ];
 
   // Scroll detection for navbar style change
@@ -28,15 +28,17 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
       
-      // Detect active section
-      const sections = navLinks.map(link => link.href.replace("#", ""));
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100) {
-            setActiveSection(section);
-            break;
+      // Detect active section (only on homepage)
+      if (window.location.pathname === "/") {
+        const sections = navLinks.map(link => link.href.replace("/#", ""));
+        for (const section of sections.reverse()) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100) {
+              setActiveSection(section);
+              break;
+            }
           }
         }
       }
@@ -106,17 +108,27 @@ export default function Navbar() {
 
   const handleSmoothScroll = useCallback((e, href) => {
     e.preventDefault();
-    const targetId = href.replace("#", "");
-    const element = document.getElementById(targetId);
-    if (element) {
-      const offset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
+    
+    // Check if we're on homepage
+    const isHomePage = window.location.pathname === "/";
+    const targetId = href.replace("/#", "").replace("#", "");
+    
+    if (isHomePage) {
+      // We're on homepage, just scroll
+      const element = document.getElementById(targetId);
+      if (element) {
+        const offset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    } else {
+      // We're on another page, navigate to homepage with hash
+      window.location.href = href;
     }
     setIsOpen(false);
   }, []);
@@ -155,7 +167,7 @@ export default function Navbar() {
             <div className="hidden lg:flex lg:items-center">
               <div className="flex items-center bg-zinc-100/80 dark:bg-zinc-800/80 rounded-full px-1.5 py-1.5">
                 {navLinks.map((link) => {
-                  const isActive = activeSection === link.href.replace("#", "");
+                  const isActive = activeSection === link.href.replace("/#", "");
                   return (
                     <a
                       key={link.name}
@@ -347,7 +359,7 @@ export default function Navbar() {
         >
           <div className="px-4 py-4 space-y-1 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl border-t border-zinc-100 dark:border-zinc-800">
             {navLinks.map((link, index) => {
-              const isActive = activeSection === link.href.replace("#", "");
+              const isActive = activeSection === link.href.replace("/#", "");
               return (
                 <a
                   key={link.name}

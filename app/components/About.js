@@ -51,10 +51,10 @@ export default function About() {
   ];
 
   const highlights = [
-    "Peste 10 ani de experiență",
-    "Mii de clienți mulțumiți",
-    "Produse atent selecționate",
-    "Parteneriate cu producători locali"
+    "1+ ani de experiență",
+    "Premii și recunoaștere",
+    "Produse atent selectate",
+    "Creat cu pasiune și suflet"
   ];
 
   return (
@@ -82,7 +82,7 @@ export default function About() {
             Povestea <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600">Nutopia</span>
           </h2>
           <p className="max-w-2xl mx-auto text-lg text-stone-600 dark:text-stone-400">
-            O călătorie de peste un deceniu în lumea gusturilor autentice și a alimentației sănătoase
+            O poveste care a început ca un vis și a devenit realitate
           </p>
         </div>
 
@@ -100,18 +100,16 @@ export default function About() {
               
               <div className="relative space-y-6 text-stone-600 dark:text-stone-400">
                 <p className="text-lg leading-relaxed">
-                  <span className="font-semibold text-stone-800 dark:text-stone-200">Nutopia</span> s-a născut din 
-                  pasiunea pentru alimentația sănătoasă și gusturile autentice. De peste 10 ani, aducem pe mesele 
-                  moldovenilor cele mai bune nuci, fructe uscate și miere naturală.
+                  Povestea <span className="font-semibold text-stone-800 dark:text-stone-200">Nutopia</span> a început în anul 2024, în cadrul Centrului de Excelență în Informatică și Tehnologii Informaționale, la disciplina Firma de exercițiu. Acolo a prins contur o idee care, treptat, s-a transformat într-un <span className="font-semibold text-amber-600 dark:text-amber-500">vis real</span>: crearea unei afaceri bazate pe mixuri de nuci și fructe uscate, sănătoase și atent alese.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  Fiecare produs este <span className="font-semibold text-amber-600 dark:text-amber-500">selectat cu grijă</span> de 
-                  la producători locali și internaționali de încredere. Calitatea nu este doar un cuvânt pentru noi – 
-                  este un <span className="font-semibold text-amber-600 dark:text-amber-500">angajament</span>.
+                  Inițial, Nutopia a fost un proiect educațional, însă pasiunea și munca depusă au făcut ca această idee să crească rapid. Pe parcursul unui an, am participat la diverse concursuri, unde Nutopia a fost apreciată și răsplătită cu <span className="font-semibold text-amber-600 dark:text-amber-500">premii, diplome și recunoaștere</span>.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  Fie că ne vizitezi în magazinul fizic sau comanzi online, îți garantăm aceeași experiență 
-                  excepțională. La Nutopia, sănătatea ta este prioritatea noastră!
+                  Activitatea din cadrul firmei de exercițiu s-a desfășurat din septembrie până în martie, iar din acel moment a început drumul adevărat al Nutopia — unul real și fizic. Cu multă dorință, implicare și încredere, visul meu a prins viață, iar în octombrie Nutopia și-a deschis oficial porțile.
+                </p>
+                <p className="text-lg leading-relaxed">
+                  Nutopia nu este doar un magazin, ci <span className="font-semibold text-amber-600 dark:text-amber-500">rezultatul muncii, pasiunii și dorinței</span> de a oferi produse de calitate, create cu suflet.
                 </p>
               </div>
 
@@ -179,7 +177,7 @@ export default function About() {
             <div className="mt-6 p-6 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-xl shadow-amber-500/25">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-3xl font-bold">10+</div>
+                  <div className="text-3xl font-bold">1+</div>
                   <div className="text-amber-100 text-sm">Ani experiență</div>
                 </div>
                 <div className="border-x border-white/20">
@@ -187,7 +185,7 @@ export default function About() {
                   <div className="text-amber-100 text-sm">Produse</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold">1K+</div>
+                  <div className="text-3xl font-bold">100+</div>
                   <div className="text-amber-100 text-sm">Clienți</div>
                 </div>
               </div>
