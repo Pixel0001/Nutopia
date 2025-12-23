@@ -173,7 +173,7 @@ export default function Menu() {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0, rootMargin: "200px 0px" }
     );
 
     if (sectionRef.current) {
