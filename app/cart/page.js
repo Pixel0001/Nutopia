@@ -122,8 +122,8 @@ export default function CartPage() {
     if (unitLower.includes("buc")) {
       return { increment: 1, min: 1, display: (q) => q.toFixed(0) };
     }
-    // Pentru kg și g - increment 0.5
-    return { increment: 0.5, min: 0.5, display: (q) => q % 1 === 0 ? q.toFixed(0) : q.toFixed(1) };
+    // Pentru kg și g - increment 0.1
+    return { increment: 0.1, min: 0.1, display: (q) => q.toFixed(1) };
   };
 
   const updateQuantity = async (itemId, newQuantity, minQuantity) => {

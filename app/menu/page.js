@@ -38,7 +38,7 @@ export default function MenuPage() {
   const getInitialQuantity = (unit) => {
     const unitLower = (unit || "").toLowerCase();
     if (unitLower.includes("buc")) return 1;
-    return 1; // default pentru kg și g
+    return 0.1; // default pentru kg și g - 0.1 kg
   };
 
   const handleAddToCart = async (item) => {
