@@ -261,17 +261,17 @@ export default function Contact() {
     {
       icon: Phone,
       title: "Telefon",
-      details: ["+373 60 123 456", "+373 22 123 456"],
+      details: ["+373 79 677 652"],
     },
     {
       icon: Mail,
       title: "Email",
-      details: ["contact@nutopia.md", "comenzi@nutopia.md"],
+      details: ["nutopia.md@gmail.com"],
     },
     {
       icon: Clock,
       title: "Program",
-      details: ["Luni - Vineri: 9:00 - 19:00", "Sâmbătă: 10:00 - 16:00"],
+      details: ["Site: 24/24", "Magazin: L-V 09:00-19:00", "S-D 10:00-18:00"],
     }
   ];
 
