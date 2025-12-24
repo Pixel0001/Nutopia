@@ -30,7 +30,7 @@ export async function GET() {
   }
 }
 
-// POST - Create new order
+// POST - Create new order (for cash payments only - PayPal goes through /api/paypal/capture-order)
 export async function POST(request) {
   try {
     const tokenData = await getCurrentUser();
@@ -42,7 +42,16 @@ export async function POST(request) {
       );
     }
 
-    const { fullName, phone, address, city, notes, paymentMethod, paypalOrderId } = await request.json();
+    const { fullName, phone, address, city, notes, paymentMethod } = await request.json();
+
+    // SECURITY: Only allow cash payment through this endpoint
+    // PayPal payments must go through /api/paypal/capture-order
+    if (paymentMethod && paymentMethod !== "cash") {
+      return NextResponse.json(
+        { error: "Pentru plăți PayPal, folosește endpoint-ul dedicat" },
+        { status: 400 }
+      );
+    }
 
     // Validation
     if (!fullName || !phone || !address || !city) {
@@ -129,7 +138,8 @@ export async function POST(request) {
           subtotal,
           shippingCost,
           total,
-          paymentMethod: paymentMethod || "cash",
+          paymentMethod: "cash",
+          paymentStatus: "pending", // Cash payments are pending until delivery
           shippingAddress: `${fullName}, ${phone}, ${address}, ${city}`,
           fullName,
           phone,

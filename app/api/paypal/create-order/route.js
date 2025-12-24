@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
 const PAYPAL_SECRET = process.env.PAYPAL_SECRET;
@@ -31,11 +33,9 @@ async function getPayPalAccessToken() {
   return data.access_token;
 }
 
-export async function POST(request) {
+export async function POST() {
   try {
-    const { amount } = await request.json();
-
-    // Check for credentials
+    // Check for credentials first
     if (!PAYPAL_CLIENT_ID) {
       console.error("NEXT_PUBLIC_PAYPAL_CLIENT_ID is missing");
       return NextResponse.json(
@@ -52,9 +52,41 @@ export async function POST(request) {
       );
     }
 
-    if (!amount || amount <= 0) {
+    // SECURITY FIX: Get current user and calculate amount server-side
+    const tokenData = await getCurrentUser();
+    
+    if (!tokenData) {
       return NextResponse.json(
-        { error: "Invalid amount" },
+        { error: "Trebuie să fii autentificat" },
+        { status: 401 }
+      );
+    }
+
+    // Get cart items from database - NEVER trust client amount
+    const cartItems = await prisma.cartItem.findMany({
+      where: { userId: tokenData.userId },
+    });
+
+    if (cartItems.length === 0) {
+      return NextResponse.json(
+        { error: "Coșul tău este gol" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate totals server-side
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    
+    // Shipping cost: 100 MDL if subtotal < 500 MDL, otherwise free
+    const shippingCost = subtotal < 500 ? 100 : 0;
+    const totalMDL = subtotal + shippingCost;
+
+    if (totalMDL <= 0) {
+      return NextResponse.json(
+        { error: "Suma invalidă" },
         { status: 400 }
       );
     }
@@ -62,7 +94,7 @@ export async function POST(request) {
     const accessToken = await getPayPalAccessToken();
 
     // Convert MDL to USD (approximate rate ~18 MDL = 1 USD)
-    const usdAmount = (amount / 18).toFixed(2);
+    const usdAmount = (totalMDL / 18).toFixed(2);
 
     // Ensure minimum amount for PayPal
     const finalAmount = Math.max(parseFloat(usdAmount), 1.00).toFixed(2);
@@ -76,6 +108,13 @@ export async function POST(request) {
             value: finalAmount,
           },
           description: "Nutopia - Produse naturale",
+          // Store the expected MDL amount in custom_id for verification
+          custom_id: JSON.stringify({
+            userId: tokenData.userId,
+            totalMDL: totalMDL,
+            subtotal: subtotal,
+            shippingCost: shippingCost,
+          }),
         },
       ],
       application_context: {
@@ -110,6 +149,9 @@ export async function POST(request) {
       id: order.id,
       status: order.status,
       links: order.links,
+      // Return calculated amounts for UI display
+      totalMDL: totalMDL,
+      totalUSD: finalAmount,
     });
   } catch (error) {
     console.error("PayPal create order error:", error.message);

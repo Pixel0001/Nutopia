@@ -97,6 +97,9 @@ model Order {
   shippingCost    Float?      @default(0)
   total           Float
   paymentMethod   String      @default("cash") // cash, card, paypal
+  paymentStatus   String      @default("pending") // pending, paid, failed
+  paypalOrderId   String?     // PayPal order ID for verification
+  paypalCaptureId String?     // PayPal capture ID after successful payment
   
   // Shipping info
   shippingAddress String?
