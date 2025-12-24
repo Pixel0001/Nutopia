@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutopia-bice.vercel.app";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutopiamd.com";
 
 export const metadata = {
   metadataBase: new URL(baseUrl),
@@ -81,9 +81,9 @@ const jsonLd = {
   "@type": "Store",
   name: "Nutopia",
   description: "Magazin online cu fructe uscate, nuci și semințe premium din Moldova",
-  url: "https://nutopia-bice.vercel.app",
-  logo: "https://nutopia-bice.vercel.app/Nutopia4.png",
-  image: "https://nutopia-bice.vercel.app/Nutopia4.png",
+  url: "https://nutopiamd.com",
+  logo: "https://nutopiamd.com/Nutopia4.png",
+  image: "https://nutopiamd.com/Nutopia4.png",
   priceRange: "$$",
   address: {
     "@type": "PostalAddress",
@@ -104,7 +104,7 @@ const jsonLd = {
   sameAs: [],
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://nutopia-bice.vercel.app/menu?search={search_term_string}",
+    target: "https://nutopiamd.com/menu?search={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 };

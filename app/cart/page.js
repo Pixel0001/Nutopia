@@ -662,7 +662,7 @@ export default function CartPage() {
                       </div>
                     </label>
 
-                    {/* Pay Now Online */}
+                    {/* Pay Now Online - TEMPORARILY DISABLED
                     <label
                       className={`flex items-center gap-2 sm:gap-4 p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 sm:border-3 cursor-pointer transition-all ${
                         paymentMethod === "paypal"
@@ -701,8 +701,9 @@ export default function CartPage() {
                         )}
                       </div>
                     </label>
+                    */}
 
-                    {/* PayPal Button Container */}
+                    {/* PayPal Button Container - TEMPORARILY DISABLED
                     {paymentMethod === "paypal" && (
                       <div className="mt-4 sm:mt-6 p-3 sm:p-6 bg-white dark:bg-zinc-900 rounded-xl sm:rounded-2xl border-2 border-purple-200 dark:border-purple-800 shadow-lg">
                         <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
@@ -722,6 +723,7 @@ export default function CartPage() {
                         </p>
                       </div>
                     )}
+                    */}
                   </div>
                 </div>
               )}
