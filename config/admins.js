@@ -5,6 +5,7 @@
 export const SUPER_ADMINS = [
   "racustefan34@gmail.com",
   "anaciumac559@gmail.com",
+  "golbik1999@gmail.com",
 ];
 
 // Verifică dacă un email este super admin
