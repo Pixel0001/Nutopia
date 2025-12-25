@@ -49,10 +49,11 @@ export const metadata = {
     description: "Magazin online cu fructe uscate, nuci și semințe de cea mai bună calitate. Produse naturale, fără aditivi. Livrare rapidă în toată Moldova.",
     images: [
       {
-        url: "/Nutopia4.png",
+        url: "https://nutopiamd.com/Nutopia4.png",
         width: 512,
         height: 512,
         alt: "Nutopia - Fructe Uscate & Nuci Premium",
+        type: "image/png",
       },
     ],
   },
@@ -60,7 +61,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Nutopia - Fructe Uscate & Nuci Premium din Moldova",
     description: "Magazin online cu fructe uscate, nuci și semințe de cea mai bună calitate. Livrare rapidă în toată Moldova.",
-    images: ["/Nutopia4.png"],
+    images: ["https://nutopiamd.com/Nutopia4.png"],
   },
   robots: {
     index: true,
