@@ -397,7 +397,7 @@ export default function AdminProductsPage() {
                         {product.price.toFixed(0)} MDL/{formatUnitDisplay(product.unit)}
                       </span>
                       <span className="text-xs sm:text-sm text-gray-400">
-                        Stoc: {product.stock} {product.unit}
+                        Stoc: {product.stock} {formatUnitDisplay(product.unit)}
                       </span>
                     </div>
                   </div>
