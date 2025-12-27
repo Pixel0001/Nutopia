@@ -6,6 +6,15 @@ import { ShoppingCart, Check, Loader2, LayoutGrid, ArrowLeft, Search, X } from "
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+// Funcție pentru a formata afișarea unității (kg -> 100g)
+const formatUnitDisplay = (unit, price) => {
+  const unitLower = (unit || "").toLowerCase();
+  if (unitLower.includes("kg")) {
+    return { displayPrice: price, displayUnit: "100g" };
+  }
+  return { displayPrice: price, displayUnit: unit?.replace("MDL/", "") };
+};
+
 export default function MenuPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -151,9 +160,14 @@ export default function MenuPage() {
               onClick={(e) => e.stopPropagation()}
             />
           </div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-center">
-            <p className="text-lg font-semibold">{selectedImage.name}</p>
-            <p className="text-amber-400 font-bold">{selectedImage.price} MDL</p>
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md rounded-2xl px-6 py-4 text-center shadow-xl border border-white/10">
+            <p className="text-lg font-semibold text-white">{selectedImage.name}</p>
+            <p className="text-amber-400 font-bold">
+              {(() => {
+                const { displayPrice, displayUnit } = formatUnitDisplay(selectedImage.unit, selectedImage.price);
+                return `${displayPrice} MDL/${displayUnit}`;
+              })()}
+            </p>
           </div>
         </div>
       )}
@@ -302,16 +316,6 @@ export default function MenuPage() {
     </>
   );
 }
-
-// Funcție pentru a formata afișarea unității (kg -> 100g) - la nivel global
-const formatUnitDisplay = (unit, price) => {
-  const unitLower = (unit || "").toLowerCase();
-  if (unitLower.includes("kg")) {
-    // Prețurile sunt deja pentru 100g
-    return { displayPrice: price, displayUnit: "100g" };
-  }
-  return { displayPrice: price, displayUnit: unit?.replace("MDL/", "") };
-};
 
 // Product Card Component
 function ProductCard({ item, addingToCart, addedToCart, onAddToCart, onImageClick }) {
