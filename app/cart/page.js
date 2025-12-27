@@ -126,8 +126,11 @@ export default function CartPage() {
     if (unitLower.includes("buc") || unitLower.includes("borcan")) {
       return { increment: 1, min: 1, display: (q) => q.toFixed(0) };
     }
-    // Pentru kg și g - increment 0.1
-    return { increment: 0.1, min: 0.1, display: (q) => q.toFixed(1) };
+    // Pentru kg - increment 0.1 dar afișăm în porții de 100g (0.1 kg = 1 porție)
+    if (unitLower.includes("kg")) {
+      return { increment: 0.1, min: 0.1, display: (q) => (q * 10).toFixed(0) };
+    }
+    return { increment: 1, min: 1, display: (q) => q.toFixed(0) };
   };
 
   // Funcție pentru a formata afișarea unității (kg -> 100g)
