@@ -285,8 +285,8 @@ export default function Menu() {
             onClick={(e) => e.stopPropagation()}
           />
         </div>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-center">
-          <p className="text-lg font-semibold">{selectedImage.name}</p>
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md rounded-2xl px-6 py-4 text-center shadow-xl border border-white/10">
+          <p className="text-lg font-semibold text-white">{selectedImage.name}</p>
           <p className="text-amber-400 font-bold">{selectedImage.price} {selectedImage.unit}</p>
         </div>
       </div>
