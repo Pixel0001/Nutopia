@@ -85,6 +85,9 @@ export const metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "AFZVe7ORfitX44VGbW8tNqoal1XL2aWTHKToEnA3NqM",
+  },
 };
 
 // JSON-LD Structured Data for SEO
