@@ -17,7 +17,7 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutopiamd.com";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutopia.md";
 
 export const metadata = {
   metadataBase: new URL(baseUrl),
@@ -36,9 +36,20 @@ export const metadata = {
     telephone: false,
   },
   icons: {
-    icon: "/Nutopia4.png",
+    icon: [
+      { url: "/Nutopia4.png", sizes: "any" },
+      { url: "/Nutopia4.png", type: "image/png", sizes: "512x512" },
+    ],
     shortcut: "/Nutopia4.png",
-    apple: "/Nutopia4.png",
+    apple: [
+      { url: "/Nutopia4.png", sizes: "180x180", type: "image/png" },
+    ],
+    other: [
+      {
+        rel: "mask-icon",
+        url: "/Nutopia4.png",
+      },
+    ],
   },
   openGraph: {
     type: "website",
@@ -49,7 +60,7 @@ export const metadata = {
     description: "Magazin online cu fructe uscate, nuci și semințe de cea mai bună calitate. Produse naturale, fără aditivi. Livrare rapidă în toată Moldova.",
     images: [
       {
-        url: "https://nutopiamd.com/Nutopia4.png",
+        url: "https://nutopia.md/Nutopia4.png",
         width: 512,
         height: 512,
         alt: "Nutopia - Fructe Uscate & Nuci Premium",
@@ -61,7 +72,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Nutopia - Fructe Uscate & Nuci Premium din Moldova",
     description: "Magazin online cu fructe uscate, nuci și semințe de cea mai bună calitate. Livrare rapidă în toată Moldova.",
-    images: ["https://nutopiamd.com/Nutopia4.png"],
+    images: ["https://nutopia.md/Nutopia4.png"],
   },
   robots: {
     index: true,
@@ -82,9 +93,9 @@ const jsonLd = {
   "@type": "Store",
   name: "Nutopia",
   description: "Magazin online cu fructe uscate, nuci și semințe premium din Moldova",
-  url: "https://nutopiamd.com",
-  logo: "https://nutopiamd.com/Nutopia4.png",
-  image: "https://nutopiamd.com/Nutopia4.png",
+  url: "https://nutopia.md",
+  logo: "https://nutopia.md/Nutopia4.png",
+  image: "https://nutopia.md/Nutopia4.png",
   priceRange: "$$",
   address: {
     "@type": "PostalAddress",
@@ -105,7 +116,7 @@ const jsonLd = {
   sameAs: [],
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://nutopiamd.com/menu?search={search_term_string}",
+    target: "https://nutopia.md/menu?search={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 };

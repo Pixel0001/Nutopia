@@ -121,8 +121,8 @@ export async function POST() {
         brand_name: "Nutopia",
         landing_page: "NO_PREFERENCE",
         user_action: "PAY_NOW",
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nutopiamd.com"}/cart?paypal=success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nutopiamd.com"}/cart?paypal=cancelled`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nutopia.md"}/cart?paypal=success`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://nutopia.md"}/cart?paypal=cancelled`,
       },
     };
 

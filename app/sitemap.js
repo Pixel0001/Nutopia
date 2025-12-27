@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutopiamd.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nutopia.md";
 
   // Static pages
   const staticPages = [
