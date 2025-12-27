@@ -198,8 +198,11 @@ export default function CartPage() {
         method: "DELETE",
       });
 
+      const data = await res.json();
+      
       if (!res.ok) {
         // Rollback on error
+        console.error("Delete error:", data.error);
         setCartItems(previousItems);
         window.dispatchEvent(new Event("cartUpdated"));
       }
