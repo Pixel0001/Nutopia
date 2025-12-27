@@ -581,7 +581,7 @@ export default function AdminProductsPage() {
                 </div>
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                    Stoc *
+                    Stoc ({formatUnitDisplay(formData.unit)}) *
                   </label>
                   <input
                     type="number"
@@ -607,7 +607,7 @@ export default function AdminProductsPage() {
                     }
                     className="w-full px-1 sm:px-4 py-2 sm:py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-gray-900 text-sm sm:text-base"
                   >
-                    <option value="kg">kg</option>
+                    <option value="kg">100g</option>
                     <option value="g">g</option>
                     <option value="buc">buc</option>
                     <option value="l">l</option>
