@@ -48,7 +48,11 @@ export default function CartPage() {
       const container = document.getElementById("paypal-button-container");
       // Calculate total inside useEffect to avoid reference before initialization
       const subtotal = cartItems.reduce(
-        (sum, item) => sum + parseFloat(item.price) * item.quantity,
+        (sum, item) => {
+          const unitLower = (item.unit || "").toLowerCase();
+          const multiplier = unitLower.includes("kg") ? 10 : 1;
+          return sum + parseFloat(item.price) * item.quantity * multiplier;
+        },
         0
       );
       const shipping = subtotal < 400 ? 100 : 0;
@@ -133,6 +137,17 @@ export default function CartPage() {
       return "MDL/100g";
     }
     return unit;
+  };
+
+  // Funcție pentru calculul corect al prețului total per item
+  // Prețul e stocat per 100g, cantitatea e în kg (0.1 kg = 100g = 1 porție)
+  const calculateItemTotal = (price, quantity, unit) => {
+    const unitLower = (unit || "").toLowerCase();
+    if (unitLower.includes("kg")) {
+      // Cantitatea e în kg, transformăm în porții de 100g (înmulțim cu 10)
+      return parseFloat(price) * quantity * 10;
+    }
+    return parseFloat(price) * quantity;
   };
 
   const updateQuantity = async (itemId, newQuantity, minQuantity) => {
@@ -243,7 +258,7 @@ export default function CartPage() {
   };
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + parseFloat(item.price) * item.quantity,
+    (sum, item) => sum + calculateItemTotal(item.price, item.quantity, item.unit),
     0
   );
   
@@ -477,7 +492,7 @@ export default function CartPage() {
                             })()}
                             <div className="text-right">
                               <span className="font-bold text-lg sm:text-2xl text-zinc-900 dark:text-white">
-                                {(parseFloat(item.price) * item.quantity).toFixed(0)}
+                                {calculateItemTotal(item.price, item.quantity, item.unit).toFixed(0)}
                               </span>
                               <span className="text-zinc-500 ml-0.5 sm:ml-1 text-xs sm:text-base">MDL</span>
                             </div>
@@ -761,7 +776,7 @@ export default function CartPage() {
                         <p className="text-[10px] sm:text-sm text-zinc-500">{item.quantity} x {item.price}</p>
                       </div>
                       <span className="font-bold text-xs sm:text-base text-amber-600 flex-shrink-0">
-                        {(parseFloat(item.price) * item.quantity).toFixed(0)}
+                        {calculateItemTotal(item.price, item.quantity, item.unit).toFixed(0)}
                       </span>
                     </div>
                   ))}
