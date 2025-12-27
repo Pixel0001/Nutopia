@@ -126,6 +126,15 @@ export default function CartPage() {
     return { increment: 0.1, min: 0.1, display: (q) => q.toFixed(1) };
   };
 
+  // Funcție pentru a formata afișarea unității (kg -> 100g)
+  const formatUnitDisplay = (unit) => {
+    const unitLower = (unit || "").toLowerCase();
+    if (unitLower.includes("kg")) {
+      return "MDL/100g";
+    }
+    return unit;
+  };
+
   const updateQuantity = async (itemId, newQuantity, minQuantity) => {
     if (newQuantity < minQuantity) return;
     
@@ -437,7 +446,7 @@ export default function CartPage() {
                             </button>
                           </div>
                           <p className="text-amber-600 font-semibold text-sm sm:text-lg">
-                            {item.price} {item.unit}
+                            {item.price} {formatUnitDisplay(item.unit)}
                           </p>
                           
                           {/* Mobile: quantity and total in row */}

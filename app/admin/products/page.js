@@ -285,6 +285,15 @@ export default function AdminProductsPage() {
     return { text: "În stoc", color: "text-green-600 bg-green-100" };
   };
 
+  // Funcție pentru a formata afișarea unității (kg -> 100g)
+  const formatUnitDisplay = (unit) => {
+    const unitLower = (unit || "").toLowerCase();
+    if (unitLower.includes("kg")) {
+      return "100g";
+    }
+    return unit;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -385,7 +394,7 @@ export default function AdminProductsPage() {
                     </p>
                     <div className="flex items-center justify-between mt-1 sm:mt-2">
                       <span className="text-sm sm:text-base font-bold text-amber-600">
-                        {product.price.toFixed(0)} MDL/{product.unit}
+                        {product.price.toFixed(0)} MDL/{formatUnitDisplay(product.unit)}
                       </span>
                       <span className="text-xs sm:text-sm text-gray-400">
                         Stoc: {product.stock} {product.unit}
