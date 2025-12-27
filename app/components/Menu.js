@@ -287,7 +287,12 @@ export default function Menu() {
         </div>
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-md rounded-2xl px-6 py-4 text-center shadow-xl border border-white/10">
           <p className="text-lg font-semibold text-white">{selectedImage.name}</p>
-          <p className="text-amber-400 font-bold">{selectedImage.price} {selectedImage.unit}</p>
+          <p className="text-amber-400 font-bold">
+            {(() => {
+              const { displayPrice, displayUnit } = formatUnitDisplay(selectedImage.unit, selectedImage.price);
+              return `${displayPrice} ${displayUnit}`;
+            })()}
+          </p>
         </div>
       </div>
     )}
